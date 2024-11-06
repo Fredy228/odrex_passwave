@@ -1,0 +1,12 @@
+.env
+.idea
+*/.idea
+
+database
+app/node_modules
+app/build
+
+server/node_modules
+server/dist
+server/static
+server/public
