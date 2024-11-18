@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { Permit } from '../enums/permit.enum';
@@ -23,15 +29,21 @@ export class Privilege {
   })
   access: Permit;
 
+  @Column({ nullable: true })
+  groupId: number;
   @ManyToOne(() => PrivilegeGroup, (group) => group.privileges, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'groupId' })
   group: PrivilegeGroup;
 
+  @Column({ nullable: true })
+  companyId: number;
   @ManyToOne(() => Company, (company) => company.privileges, {
     onDelete: 'CASCADE',
     nullable: true,
   })
+  @JoinColumn({ name: 'companyId' })
   company: Company;
 
   @ManyToOne(() => Hall, (hall) => hall.privileges, {

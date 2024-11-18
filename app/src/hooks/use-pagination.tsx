@@ -1,6 +1,7 @@
 import { useSearchParams } from "react-router-dom";
 import { useCallback, useMemo } from "react";
 import { parseJson } from "@/services/parseJson";
+import { QueryGetType } from "@/types/query.type";
 
 const usePagination = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -31,6 +32,14 @@ const usePagination = () => {
     () => parseJson<Record<string, string>>(filterQuery),
     [filterQuery],
   );
+  const queryGet = useMemo(() => {
+    const options: QueryGetType = {
+      range: [page * pageSize - pageSize + 1, page * pageSize],
+    };
+    if (sort) options.sort = sort;
+    if (filter) options.filter = filter;
+    return options;
+  }, [filter, page, pageSize, sort]);
 
   return {
     page,
@@ -38,6 +47,7 @@ const usePagination = () => {
     filter,
     pageSize,
     setQuery,
+    queryGet,
   };
 };
 

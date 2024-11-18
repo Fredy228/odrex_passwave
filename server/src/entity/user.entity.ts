@@ -2,6 +2,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
@@ -81,6 +84,10 @@ export class User {
   @OneToMany(() => UserDevices, (device) => device.user)
   devices: UserDevices[];
 
-  @OneToMany(() => PrivilegeGroup, (privilege) => privilege.user)
+  // @OneToMany(() => PrivilegeGroup, (privilege) => privilege.user)
+  // privilege_groups: PrivilegeGroup[];
+
+  @ManyToMany(() => PrivilegeGroup, (privilege) => privilege.users)
+  @JoinTable()
   privilege_groups: PrivilegeGroup[];
 }

@@ -37,38 +37,10 @@ export class CompanyService {
     user: User,
     { sort = ['id', 'DESC'], range = [1, 15], filter = {} }: QuerySearchDto,
   ): Promise<{ data: Company[]; total: number }> {
-    // if (user.role === RoleEnum.ADMIN) {
-    //   const [companies, total] = await this.companyRepository.findAndCount({
-    //     where: {
-    //       name: filter.name && ILike('%' + filter.name + '%'),
-    //     },
-    //     order: {
-    //       [sort[0]]: sort[1],
-    //     },
-    //     take: range[1] - range[0] + 1,
-    //     skip: range[0] - 1,
-    //   });
-    //   return { data: companies, total };
-    // }
-    //
-    // const privileges = await this.privilegeRepository.find({
-    //   where: {
-    //     group: {
-    //       user,
-    //     },
-    //   },
-    // });
-    // if (!privileges.length) return { data: [], total: 0 };
-
-    const privileges: Privilege[] | false =
-      Boolean(user.role !== RoleEnum.ADMIN) &&
-      (await this.privilegeRepository.find({
-        where: {
-          group: {
-            user,
-          },
-        },
-      }));
+    const privileges: Privilege[] | undefined =
+      user.role === RoleEnum.ADMIN
+        ? undefined
+        : await this.privilegeRepository.getByUser(user);
     if (privileges?.length === 0) return { data: [], total: 0 };
 
     return await this.companyRepository.getByPrivilege(
@@ -77,7 +49,7 @@ export class CompanyService {
         filter,
         range,
       },
-      privileges || undefined,
+      privileges,
     );
   }
 

@@ -22,9 +22,7 @@ async function bootstrap() {
   app.useStaticAssets(join(process.cwd(), 'public'), {
     prefix: '/api/public',
   });
-  // app.useStaticAssets(join(process.cwd(), 'static'), {
-  //   prefix: '/api/static',
-  // });
+
   app.useGlobalFilters(new HttpExceptionFilter());
 
   const config = new DocumentBuilder()

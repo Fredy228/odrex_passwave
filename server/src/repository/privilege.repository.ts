@@ -19,7 +19,7 @@ export class PrivilegeRepository extends Repository<Privilege> {
     const privilege = await this.findOne({
       where: {
         group: {
-          user: {
+          users: {
             id: user.id,
           },
         },
@@ -34,5 +34,17 @@ export class PrivilegeRepository extends Repository<Privilege> {
       HttpStatus.FORBIDDEN,
       "You don't have editing privileges",
     );
+  }
+
+  async getByUser(user: User): Promise<Privilege[]> {
+    return this.find({
+      where: {
+        group: {
+          users: {
+            id: user.id,
+          },
+        },
+      },
+    });
   }
 }

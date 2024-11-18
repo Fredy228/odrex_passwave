@@ -1,5 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
+import { join } from 'path';
 
 import { PasswordRepository } from '../../repository/password.repository';
 import { PasswordCreateDto } from './dto/password.create.dto';
@@ -13,9 +14,7 @@ import { Privilege } from '../../entity/privilege.entity';
 import { RoleEnum } from '../../enums/role.enum';
 import { PrivilegeRepository } from '../../repository/privilege.repository';
 import { PasswordUpdateDto } from './dto/password.update.dto';
-import { join } from 'path';
 import { CustomException } from '../../services/custom-exception';
-import { Permit } from '../../enums/permit.enum';
 
 @Injectable()
 export class PasswordService {
@@ -76,21 +75,16 @@ export class PasswordService {
     user: User,
     { sort = ['id', 'DESC'], range = [1, 15], filter = {} }: QuerySearchDto,
   ) {
-    const privileges: Privilege[] | false =
-      Boolean(user.role !== RoleEnum.ADMIN) &&
-      (await this.privilegeRepository.find({
-        where: {
-          group: {
-            user,
-          },
-        },
-      }));
+    const privileges: Privilege[] | undefined =
+      user.role === RoleEnum.ADMIN
+        ? undefined
+        : await this.privilegeRepository.getByUser(user);
     if (privileges?.length === 0) return [];
 
     const res = await this.passwordRepository.getByPrivilege(
       { sort, filter, range },
       deviceId,
-      privileges || undefined,
+      privileges,
     );
 
     res.data = res.data.map((i) => {

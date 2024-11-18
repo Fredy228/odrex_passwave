@@ -3,6 +3,7 @@ import { Typography } from "@mui/material";
 
 import ContainerCustom from "@/components/reused/container/Container";
 import useActionStore from "@/global-state/action.store";
+import Groups from "@/components/ui/groups/Groups";
 
 const GroupsScreen: FC = () => {
   const setNavMap = useActionStore((state) => state.setNavMap);
@@ -18,6 +19,7 @@ const GroupsScreen: FC = () => {
           <Typography variant={"h4"} textAlign={"center"} mt={2}>
             Groups
           </Typography>
+          <Groups />
         </div>
       </ContainerCustom>
     </main>

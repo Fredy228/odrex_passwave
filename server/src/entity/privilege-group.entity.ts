@@ -1,6 +1,8 @@
 import {
   Column,
   Entity,
+  JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -33,8 +35,11 @@ export class PrivilegeGroup {
   @OneToMany(() => Privilege, (privilege) => privilege.group)
   privileges: Privilege[];
 
-  @ManyToOne(() => User, (user) => user.privilege_groups, {
-    onDelete: 'CASCADE',
-  })
-  user: User;
+  // @ManyToOne(() => User, (user) => user.privilege_groups, {
+  //   onDelete: 'CASCADE',
+  // })
+  // user: User;
+
+  @ManyToMany(() => User, (user) => user.privilege_groups)
+  users: User[];
 }

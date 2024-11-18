@@ -19,9 +19,6 @@ type Props = {
   openEdit: () => void;
 };
 const DeviceOpen: FC<Props> = ({ device, close, openDelete, openEdit }) => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  useEffect(() => {}, []);
-
   return (
     <Dialog open={Boolean(device?.id)} onClose={close} fullScreen>
       <DialogTitle textAlign={"center"}>

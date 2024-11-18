@@ -46,15 +46,10 @@ export class HallService {
     { sort = ['id', 'DESC'], range = [1, 15], filter = {} }: QuerySearchDto,
     companyId: number,
   ): Promise<{ data: Hall[]; total: number }> {
-    const privileges: Privilege[] | false =
-      Boolean(user.role !== RoleEnum.ADMIN) &&
-      (await this.privilegeRepository.find({
-        where: {
-          group: {
-            user,
-          },
-        },
-      }));
+    const privileges: Privilege[] | undefined =
+      user.role === RoleEnum.ADMIN
+        ? undefined
+        : await this.privilegeRepository.getByUser(user);
     if (privileges?.length === 0) return { data: [], total: 0 };
 
     return await this.hallRepository.getByPrivilege(
@@ -64,7 +59,7 @@ export class HallService {
         range,
       },
       companyId,
-      privileges || undefined,
+      privileges,
     );
   }
 

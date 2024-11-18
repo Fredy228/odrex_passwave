@@ -13,11 +13,12 @@ const options: Options = {
   nodes: {
     shape: "box",
   },
-  // edges: {
-  //   arrows: {
-  //     to: true,
-  //   },
-  // },
+  edges: {
+    // arrows: {
+    // to: true,
+    // from: true,
+    // },
+  },
 };
 
 type Props = {

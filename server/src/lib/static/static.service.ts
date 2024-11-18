@@ -36,7 +36,7 @@ export class StaticService {
           ? undefined
           : {
               group: {
-                user: {
+                users: {
                   id: user.id,
                 },
               },

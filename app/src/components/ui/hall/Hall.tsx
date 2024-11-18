@@ -41,7 +41,7 @@ const Hall: FC = () => {
   const [deleteHall, setDeleteHall] = useState<number | null>(null);
   const [updateHall, setUpdateHall] = useState<number | null>(null);
 
-  const { page, sort, pageSize, filter, setQuery } = usePagination();
+  const { page, sort, pageSize, filter, setQuery, queryGet } = usePagination();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isFetching = useRef<boolean>(false);
   const [isShowModalCreate, setIsShowModalCreate] = useState<boolean>(false);
@@ -62,15 +62,9 @@ const Hall: FC = () => {
     isFetching.current = true;
     setIsLoading(true);
 
-    const options: QueryGetType = {
-      range: [page * pageSize - pageSize + 1, page * pageSize],
-    };
-    if (sort) options.sort = sort;
-    if (filter) options.filter = filter;
-
-    getAllHalls(options, Number(companyId))
+    getAllHalls(queryGet, Number(companyId))
       .then((data) => {
-        // console.log("data", data);
+        console.log("data", data);
         setTotal(data.total);
         setListHall(data.data);
       })
@@ -79,7 +73,7 @@ const Hall: FC = () => {
         setIsLoading(false);
         isFetching.current = false;
       });
-  }, [pageSize, sort, page, filter, refresh, companyId]);
+  }, [pageSize, sort, page, filter, refresh, companyId, queryGet]);
 
   return (
     <>

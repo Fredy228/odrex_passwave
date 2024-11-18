@@ -1,8 +1,9 @@
-import { DataSource, Repository } from 'typeorm';
-import { Injectable } from '@nestjs/common';
+import { DataSource, Not, Repository } from 'typeorm';
+import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { User } from '../entity/user.entity';
 import { QuerySearchDto } from '../dto/query-search.dto';
+import { CustomException } from '../services/custom-exception';
 
 @Injectable()
 export class UserRepository extends Repository<User> {
@@ -10,11 +11,27 @@ export class UserRepository extends Repository<User> {
     super(User, dataSource.createEntityManager());
   }
 
-  async getAllUsers({
-    sort = ['createAt', 'DESC'],
-    range = [1, 15],
-    filter = {},
-  }: QuerySearchDto) {
+  async getAllUsers(
+    { sort = ['id', 'DESC'], range = [1, 15], filter = {} }: QuerySearchDto,
+    relations?: Record<string, true>,
+  ) {
+    Object.keys(filter).forEach((key) => {
+      if (!key.startsWith('not_')) return;
+      const newKey = key.replace('not_', '');
+
+      if (typeof filter[key] === 'object') {
+        const subObject = Object.entries(filter[key])[0];
+        if (subObject) {
+          filter[newKey] = {
+            [subObject[0]]: Not(subObject[1]),
+          };
+        }
+      } else {
+        filter[newKey] = Not(filter[key]);
+      }
+      delete filter[key];
+    });
+    console.log('filter', filter);
     const [users, total] = await this.findAndCount({
       where: filter,
       select: {
@@ -24,6 +41,7 @@ export class UserRepository extends Repository<User> {
         role: true,
         avatarUrl: true,
       },
+      relations,
       order: {
         [sort[0]]: sort[1],
       },
@@ -32,5 +50,21 @@ export class UserRepository extends Repository<User> {
     });
 
     return { data: users, total };
+  }
+
+  async getById(id: number): Promise<User> {
+    const user = await this.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!user)
+      throw new CustomException(
+        HttpStatus.NOT_FOUND,
+        `Not found user with ID "${id}"`,
+      );
+
+    return user;
   }
 }

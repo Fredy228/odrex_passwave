@@ -13,6 +13,7 @@ import { DeviceModule } from './lib/device/device.module';
 import { PasswordModule } from './lib/password/password.module';
 import { StaticModule } from './lib/static/static.module';
 import { PrivilegeGroupModule } from './lib/privilege-group/privilege-group.module';
+import { PrivilegeModule } from './lib/privilege/privilege.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { PrivilegeGroupModule } from './lib/privilege-group/privilege-group.modu
     PasswordModule,
     StaticModule,
     PrivilegeGroupModule,
+    PrivilegeModule,
   ],
   controllers: [],
 })

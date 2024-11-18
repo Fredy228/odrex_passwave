@@ -3,6 +3,7 @@ import { type FC, useState } from "react";
 import { LoadingButton } from "@mui/lab";
 
 import { outputError } from "@/services/output-error";
+import { toast } from "react-toastify";
 
 type Props = {
   close: () => void;
@@ -21,6 +22,7 @@ const ModalConfirm: FC<Props> = ({ close, refresh, id, text, fetchApi }) => {
     fetchApi(id)
       .then(() => {
         refresh && refresh();
+        toast.success("Success");
         close();
       })
       .catch(outputError)

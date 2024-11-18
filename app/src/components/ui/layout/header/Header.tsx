@@ -3,12 +3,15 @@ import {
   AppBar,
   Avatar,
   IconButton,
-  Link,
   Menu,
   MenuItem,
   Toolbar,
   Typography,
 } from "@mui/material";
+import Box from "@mui/material/Box";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { remove } from "local-storage";
 
 import ContainerCustom from "@/components/reused/container/Container";
 import {
@@ -16,14 +19,10 @@ import {
   ListMenu,
   LogoCustom,
 } from "@/components/ui/layout/header/header.styled";
-import Box from "@mui/material/Box";
 import useUserStore from "@/global-state/user.store";
 import { RoleEnum } from "@/enum/role.enum";
 import { logoutUser } from "@/api/auth";
 import { outputError } from "@/services/output-error";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-import { remove } from "local-storage";
 import { generateUrlFile } from "@/services/generateUrlFile";
 
 const Header: FC = () => {

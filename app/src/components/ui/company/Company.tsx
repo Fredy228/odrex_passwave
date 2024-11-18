@@ -40,7 +40,7 @@ const Company: FC = () => {
   const [deleteCompany, setDeleteCompany] = useState<number | null>(null);
   const [updateCompany, setUpdateCompany] = useState<number | null>(null);
 
-  const { page, sort, pageSize, filter, setQuery } = usePagination();
+  const { page, sort, pageSize, filter, setQuery, queryGet } = usePagination();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isFetching = useRef<boolean>(false);
   const [isShowModalCreate, setIsShowModalCreate] = useState<boolean>(false);
@@ -60,15 +60,9 @@ const Company: FC = () => {
     isFetching.current = true;
     setIsLoading(true);
 
-    const options: QueryGetType = {
-      range: [page * pageSize - pageSize + 1, page * pageSize],
-    };
-    if (sort) options.sort = sort;
-    if (filter) options.filter = filter;
-
-    getAllCompanies(options)
+    getAllCompanies(queryGet)
       .then((data) => {
-        // console.log("data", data);
+        console.log("data", data);
         setTotal(data.total);
         setListCompany(data.data);
       })
@@ -77,7 +71,7 @@ const Company: FC = () => {
         setIsLoading(false);
         isFetching.current = false;
       });
-  }, [pageSize, sort, page, filter, refresh]);
+  }, [pageSize, sort, page, filter, refresh, queryGet]);
 
   return (
     <>
