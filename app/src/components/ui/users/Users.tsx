@@ -14,6 +14,7 @@ import useUserColumns from "@/components/ui/users/users-colums";
 import useActionStore from "@/global-state/action.store";
 import UserDelete from "@/components/ui/users/delete/UserDelete";
 import { ButtonCreate } from "@/components/reused/button/button-create.styled";
+import Search from "@/components/reused/search/Search";
 
 const Users: FC = () => {
   const [listUser, setListUser] = useState<UserInterface[]>([]);
@@ -21,7 +22,7 @@ const Users: FC = () => {
   const deleteUserId = useActionStore((state) => state.deleteUserId);
   const setDeleteUser = useActionStore((state) => state.setDeleteUser);
 
-  const { page, sort, pageSize, setQuery } = usePagination();
+  const { page, sort, pageSize, setQuery, queryGet } = usePagination();
   const columns = useUserColumns();
   const navigate = useNavigate();
 
@@ -35,12 +36,7 @@ const Users: FC = () => {
     isFetching.current = true;
     setIsLoading(true);
 
-    const options: QueryGetType = {
-      range: [page * pageSize - pageSize + 1, page * pageSize],
-    };
-    if (sort) options.sort = sort;
-
-    getAllUsers(options)
+    getAllUsers(queryGet)
       .then((data) => {
         console.log("data: ", data);
         setTotal(data.total);
@@ -51,7 +47,7 @@ const Users: FC = () => {
         setIsLoading(false);
         isFetching.current = false;
       });
-  }, [pageSize, sort, page, refresh]);
+  }, [pageSize, sort, page, refresh, queryGet]);
 
   return (
     <MainBox>
@@ -68,6 +64,18 @@ const Users: FC = () => {
       <ButtonCreate onClick={() => setIsShowModalCreate(true)}>
         <AddIcon />
       </ButtonCreate>
+      <Search
+        fields={[
+          {
+            name: "Name",
+            value: "name",
+          },
+          {
+            name: "Email",
+            value: "email",
+          },
+        ]}
+      />
       <DataGrid
         sx={{
           margin: "20px 0",
@@ -82,7 +90,6 @@ const Users: FC = () => {
           },
         }}
         pageSizeOptions={[15, 20, 30, 50, 100]}
-        checkboxSelection
         disableRowSelectionOnClick
         loading={isLoading}
         rowCount={total}

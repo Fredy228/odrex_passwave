@@ -14,15 +14,17 @@ type Props = {
   group: GroupInterface;
 };
 const GroupUsersContent: FC<Props> = ({ group }) => {
+  const [isOnlyGroup, setIsOnlyGroup] = useState<boolean>(true);
   const [refresh, setRefresh] = useState<boolean>(false);
-  const { columns, deleteGroupUser, setDeleteGroupUser } = useGroupUsersColumns(
-    { type: "list", refresh: () => setRefresh((prev) => !prev) },
-  );
+  const { columns } = useGroupUsersColumns({
+    group,
+    type: isOnlyGroup ? "list" : "add",
+    refresh: () => setRefresh((prev) => !prev),
+  });
   const { page, sort, pageSize, setQuery, queryGet } = usePagination();
 
   const [listUser, setListUser] = useState<UserInterface[]>([]);
   const [total, setTotal] = useState<number>(0);
-  const [isOnlyGroup, setIsOnlyGroup] = useState<boolean>(true);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isFetching = useRef<boolean>(false);
@@ -39,8 +41,9 @@ const GroupUsersContent: FC<Props> = ({ group }) => {
     getAllUsers({
       ...queryGet,
       filter: {
-        privilege_groups: {
-          id: group.id,
+        ...queryGet.filter,
+        [isOnlyGroup ? "groups_users" : "not_groups_users"]: {
+          groupId: group.id,
         },
       },
     })
@@ -54,7 +57,7 @@ const GroupUsersContent: FC<Props> = ({ group }) => {
         setIsLoading(false);
         isFetching.current = false;
       });
-  }, [pageSize, sort, page, refresh, queryGet, group]);
+  }, [refresh, queryGet, group, isOnlyGroup]);
 
   return (
     <>
@@ -79,12 +82,8 @@ const GroupUsersContent: FC<Props> = ({ group }) => {
               value: "name",
             },
             {
-              name: "Entry",
-              value: "entry",
-            },
-            {
-              name: "Access",
-              value: "access",
+              name: "Email",
+              value: "email",
             },
           ]}
         />
@@ -103,7 +102,6 @@ const GroupUsersContent: FC<Props> = ({ group }) => {
           },
         }}
         pageSizeOptions={[15, 20, 30, 50, 100]}
-        checkboxSelection
         disableRowSelectionOnClick
         loading={isLoading}
         rowCount={total}

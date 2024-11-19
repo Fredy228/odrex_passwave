@@ -40,7 +40,7 @@ const Company: FC = () => {
   const [deleteCompany, setDeleteCompany] = useState<number | null>(null);
   const [updateCompany, setUpdateCompany] = useState<number | null>(null);
 
-  const { page, sort, pageSize, filter, setQuery, queryGet } = usePagination();
+  const { page, pageSize, setQuery, queryGet } = usePagination();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isFetching = useRef<boolean>(false);
   const [isShowModalCreate, setIsShowModalCreate] = useState<boolean>(false);
@@ -71,7 +71,7 @@ const Company: FC = () => {
         setIsLoading(false);
         isFetching.current = false;
       });
-  }, [pageSize, sort, page, filter, refresh, queryGet]);
+  }, [refresh, queryGet]);
 
   return (
     <>

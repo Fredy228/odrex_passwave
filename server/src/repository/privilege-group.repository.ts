@@ -11,11 +11,15 @@ export class PrivilegeGroupRepository extends Repository<PrivilegeGroup> {
     super(PrivilegeGroup, dataSource.createEntityManager());
   }
 
-  async getById(id: number): Promise<PrivilegeGroup> {
+  async getById(
+    id: number,
+    relations?: Record<string, any>,
+  ): Promise<PrivilegeGroup> {
     const group = await this.findOne({
       where: {
         id,
       },
+      relations,
     });
 
     if (!group)

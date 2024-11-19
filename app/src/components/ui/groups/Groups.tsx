@@ -27,7 +27,7 @@ const Groups: FC = () => {
   const [list, setList] = useState<GroupInterface[]>([]);
   const [total, setTotal] = useState<number>(0);
 
-  const { page, sort, pageSize, filter, setQuery, queryGet } = usePagination();
+  const { pageSize, setQuery, queryGet } = usePagination();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isFetching = useRef<boolean>(false);
   const [isShowModalCreate, setIsShowModalCreate] = useState<boolean>(false);
@@ -58,7 +58,7 @@ const Groups: FC = () => {
         setIsLoading(false);
         isFetching.current = false;
       });
-  }, [filter, page, pageSize, sort, refresh, queryGet]);
+  }, [refresh, queryGet]);
 
   return (
     <>

@@ -5,9 +5,15 @@ import { PrivilegeGroupController } from './privilege-group.controller';
 import { ProtectAuthMiddleware } from '../../middlewares/protect-auth.middleware';
 import { UserRepository } from '../../repository/user.repository';
 import { PrivilegeGroupRepository } from '../../repository/privilege-group.repository';
+import { GroupUserRepository } from '../../repository/group-user.repository';
 
 @Module({
-  providers: [PrivilegeGroupService, UserRepository, PrivilegeGroupRepository],
+  providers: [
+    PrivilegeGroupService,
+    UserRepository,
+    PrivilegeGroupRepository,
+    GroupUserRepository,
+  ],
   controllers: [PrivilegeGroupController],
 })
 export class PrivilegeGroupModule {

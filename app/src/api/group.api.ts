@@ -25,6 +25,14 @@ export const updateGroup = async (
   return data;
 };
 
+export const addRemoveUserGroup = async (
+  action: "add" | "remove",
+  groupId: number,
+  userId: number,
+): Promise<void> => {
+  await $api.patch(`/privilege-group/${action}/${groupId}/${userId}`);
+};
+
 export const getAllGroup = async ({ filter, sort, range }: QueryGetType) => {
   const params: Record<string, any> = {};
   if (filter) params.filter = JSON.stringify(filter);

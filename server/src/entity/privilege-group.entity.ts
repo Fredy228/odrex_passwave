@@ -1,17 +1,9 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { User } from './user.entity';
 import { Privilege } from './privilege.entity';
 import { GroupType } from '../enums/group.enum';
+import { GroupUser } from './group-user.entity';
 
 @Entity({ name: 'privilege_group' })
 export class PrivilegeGroup {
@@ -35,11 +27,6 @@ export class PrivilegeGroup {
   @OneToMany(() => Privilege, (privilege) => privilege.group)
   privileges: Privilege[];
 
-  // @ManyToOne(() => User, (user) => user.privilege_groups, {
-  //   onDelete: 'CASCADE',
-  // })
-  // user: User;
-
-  @ManyToMany(() => User, (user) => user.privilege_groups)
-  users: User[];
+  @OneToMany(() => GroupUser, (group_user) => group_user.user)
+  groups_users: GroupUser[];
 }

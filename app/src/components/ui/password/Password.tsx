@@ -30,7 +30,7 @@ const Password: FC<Props> = ({ id }) => {
   const [list, setList] = useState<PasswordInterface[]>([]);
   const [total, setTotal] = useState<number>(0);
 
-  const { page, sort, pageSize, filter, setQuery, queryGet } = usePagination();
+  const { pageSize, setQuery, queryGet } = usePagination();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isFetching = useRef<boolean>(false);
   const [isShowModalCreate, setIsShowModalCreate] = useState<boolean>(false);
@@ -56,7 +56,7 @@ const Password: FC<Props> = ({ id }) => {
         setIsLoading(false);
         isFetching.current = false;
       });
-  }, [pageSize, sort, page, filter, refresh, id, queryGet]);
+  }, [refresh, id, queryGet]);
 
   return (
     <>

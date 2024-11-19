@@ -19,8 +19,8 @@ export class PrivilegeRepository extends Repository<Privilege> {
     const privilege = await this.findOne({
       where: {
         group: {
-          users: {
-            id: user.id,
+          groups_users: {
+            userId: user.id,
           },
         },
         password: {
@@ -40,8 +40,8 @@ export class PrivilegeRepository extends Repository<Privilege> {
     return this.find({
       where: {
         group: {
-          users: {
-            id: user.id,
+          groups_users: {
+            userId: user.id,
           },
         },
       },

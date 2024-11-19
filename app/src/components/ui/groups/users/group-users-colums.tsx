@@ -3,20 +3,37 @@ import { GridCellParams, GridColDef } from "@mui/x-data-grid";
 import { Avatar, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { toast } from "react-toastify";
 
 import { BoxCenter } from "@/components/ui/users/users.styled";
 import { generateUrlFile } from "@/services/generateUrlFile";
+import { GroupInterface } from "@/interface/group.interface";
+import { addRemoveUserGroup } from "@/api/group.api";
+import { outputError } from "@/services/output-error";
 
 type Props = {
   type?: "list" | "add";
   refresh: () => void;
+  group: GroupInterface;
 };
-const useGroupUsersColumns = ({ type = "list" }: Props) => {
-  const [deleteGroupUser, setDeleteGroupUser] = useState<number | null>(null);
+const useGroupUsersColumns = ({ type = "list", group, refresh }: Props) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleAdd = (id: number) => {};
+  const handleAddRemove = (action: "add" | "remove", id: number) => {
+    if (isLoading)
+      return toast.warning("Wait until the current request is processed");
+    setIsLoading(true);
+    addRemoveUserGroup(action, group.id, id)
+      .then(() => {
+        refresh();
+        toast.success(`Successfully ${action}`);
+      })
+      .catch(outputError)
+      .finally(() => setIsLoading(false));
+  };
 
   const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", width: 70 },
     {
       field: "name",
       headerName: "Name",
@@ -64,7 +81,10 @@ const useGroupUsersColumns = ({ type = "list" }: Props) => {
       type: "actions",
       renderCell: (params: GridCellParams) => (
         <BoxCenter>
-          <IconButton type={"button"} onClick={() => handleAdd(params.row.id)}>
+          <IconButton
+            type={"button"}
+            onClick={() => handleAddRemove("add", params.row.id)}
+          >
             <AddIcon />
           </IconButton>
         </BoxCenter>
@@ -83,7 +103,7 @@ const useGroupUsersColumns = ({ type = "list" }: Props) => {
         <BoxCenter>
           <IconButton
             type={"button"}
-            onClick={() => setDeleteGroupUser(params.row.id)}
+            onClick={() => handleAddRemove("remove", params.row.id)}
           >
             <DeleteIcon />
           </IconButton>
@@ -93,8 +113,6 @@ const useGroupUsersColumns = ({ type = "list" }: Props) => {
 
   return {
     columns,
-    deleteGroupUser,
-    setDeleteGroupUser,
   };
 };
 

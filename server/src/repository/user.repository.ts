@@ -1,4 +1,4 @@
-import { DataSource, Not, Repository } from 'typeorm';
+import { DataSource, ILike, IsNull, Not, Or, Repository } from 'typeorm';
 import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { User } from '../entity/user.entity';
@@ -16,6 +16,9 @@ export class UserRepository extends Repository<User> {
     relations?: Record<string, true>,
   ) {
     Object.keys(filter).forEach((key) => {
+      if (['name', 'email'].includes(key)) {
+        filter[key] = ILike('%' + filter[key] + '%');
+      }
       if (!key.startsWith('not_')) return;
       const newKey = key.replace('not_', '');
 
@@ -23,7 +26,7 @@ export class UserRepository extends Repository<User> {
         const subObject = Object.entries(filter[key])[0];
         if (subObject) {
           filter[newKey] = {
-            [subObject[0]]: Not(subObject[1]),
+            [subObject[0]]: Or(Not(subObject[1]), IsNull()),
           };
         }
       } else {

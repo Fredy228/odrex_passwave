@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { In, IsNull, Not } from 'typeorm';
+import { In } from 'typeorm';
 
 import { PrivilegeRepository } from '../../repository/privilege.repository';
 import { PrivilegeGroupRepository } from '../../repository/privilege-group.repository';
@@ -21,6 +21,7 @@ import { PrivilegeGroup } from '../../entity/privilege-group.entity';
 import { Permit } from '../../enums/permit.enum';
 import { Privilege } from '../../entity/privilege.entity';
 import { RoleEnum } from '../../enums/role.enum';
+import { GroupUserRepository } from '../../repository/group-user.repository';
 
 @Injectable()
 export class PrivilegeService {
@@ -32,6 +33,7 @@ export class PrivilegeService {
     private readonly companyRepository: CompanyRepository,
     private readonly deviceRepository: DeviceRepository,
     private readonly passwordRepository: PasswordRepository,
+    private readonly groupUserRepository: GroupUserRepository,
   ) {}
 
   getAll(
@@ -61,21 +63,18 @@ export class PrivilegeService {
     const { data: users, total } = await this.userRepository.getAllUsers({
       sort,
       range,
-      filter: { ...filter, role: Not(RoleEnum.ADMIN) },
+      filter: { ...filter, not_role: RoleEnum.ADMIN },
     });
 
     const groups = await this.privilegeGroupRepository.find({
       where: {
         type: GroupType.MAIN,
-        users,
+        groups_users: {
+          user: In(users.map((u) => u.id)),
+        },
       },
       relations: {
-        users: true,
-      },
-      select: {
-        users: {
-          id: true,
-        },
+        groups_users: true,
       },
     });
 
@@ -96,7 +95,7 @@ export class PrivilegeService {
         ...u,
         access: null,
       };
-      const findGroup = groups.find((g) => g.users[0].id === u.id);
+      const findGroup = groups.find((g) => g.groups_users[0]?.userId === u.id);
       if (findGroup) {
         const findPrivilege = privileges.find(
           (p) => p.groupId === findGroup.id,
@@ -156,19 +155,24 @@ export class PrivilegeService {
 
     let group = await this.privilegeGroupRepository.findOne({
       where: {
-        users: {
-          id: user.id,
+        groups_users: {
+          userId: user.id,
         },
         type: GroupType.MAIN,
       },
     });
     if (!group) {
       group = this.privilegeGroupRepository.create({
-        users: [user],
         type: GroupType.MAIN,
         name: 'Personal',
       });
       await this.privilegeGroupRepository.save(group);
+      await this.groupUserRepository.save(
+        this.groupUserRepository.create({
+          user,
+          group,
+        }),
+      );
     }
 
     return this.create(group, list, id, access);

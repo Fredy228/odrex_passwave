@@ -10,6 +10,7 @@ import { CompanyRepository } from '../../repository/company.repository';
 import { HallRepository } from '../../repository/hall.repository';
 import { DeviceRepository } from '../../repository/device.repository';
 import { PasswordRepository } from '../../repository/password.repository';
+import { GroupUserRepository } from '../../repository/group-user.repository';
 
 @Module({
   providers: [
@@ -21,6 +22,7 @@ import { PasswordRepository } from '../../repository/password.repository';
     HallRepository,
     DeviceRepository,
     PasswordRepository,
+    GroupUserRepository,
   ],
   controllers: [PrivilegeController],
 })

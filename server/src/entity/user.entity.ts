@@ -2,9 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
@@ -16,8 +13,7 @@ import { JsonTransformer } from '@anchan828/typeorm-transformers';
 import { UserDevices } from './user-devices.entity';
 import { RoleEnum } from '../enums/role.enum';
 import { UserPhoneType } from '../types/user.type';
-import { Privilege } from './privilege.entity';
-import { PrivilegeGroup } from './privilege-group.entity';
+import { GroupUser } from './group-user.entity';
 
 @Entity({ name: 'user' })
 @Unique(['email'])
@@ -84,10 +80,6 @@ export class User {
   @OneToMany(() => UserDevices, (device) => device.user)
   devices: UserDevices[];
 
-  // @OneToMany(() => PrivilegeGroup, (privilege) => privilege.user)
-  // privilege_groups: PrivilegeGroup[];
-
-  @ManyToMany(() => PrivilegeGroup, (privilege) => privilege.users)
-  @JoinTable()
-  privilege_groups: PrivilegeGroup[];
+  @OneToMany(() => GroupUser, (group_user) => group_user.user)
+  groups_users: GroupUser[];
 }

@@ -22,7 +22,6 @@ import useUserStore from "@/global-state/user.store";
 import { HallInterface } from "@/interface/hall.interface";
 import usePagination from "@/hooks/use-pagination";
 import { scrollToTop } from "@/services/scroll-to-top";
-import { QueryGetType } from "@/types/query.type";
 import { getAllHalls } from "@/api/hall.api";
 import { outputError } from "@/services/output-error";
 import { RoleEnum } from "@/enum/role.enum";
@@ -41,7 +40,7 @@ const Hall: FC = () => {
   const [deleteHall, setDeleteHall] = useState<number | null>(null);
   const [updateHall, setUpdateHall] = useState<number | null>(null);
 
-  const { page, sort, pageSize, filter, setQuery, queryGet } = usePagination();
+  const { page, pageSize, setQuery, queryGet } = usePagination();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isFetching = useRef<boolean>(false);
   const [isShowModalCreate, setIsShowModalCreate] = useState<boolean>(false);
@@ -73,7 +72,7 @@ const Hall: FC = () => {
         setIsLoading(false);
         isFetching.current = false;
       });
-  }, [pageSize, sort, page, filter, refresh, companyId, queryGet]);
+  }, [refresh, companyId, queryGet]);
 
   return (
     <>

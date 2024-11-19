@@ -85,6 +85,31 @@ export class PrivilegeGroupController {
     return this.privilegeGroupService.update(groupId, body);
   }
 
+  @Patch('/:action/:group_id/:user_id')
+  @ApiOperation({
+    summary: 'Add or remove relation privilege group',
+    description: 'Return privilege group',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Successful',
+  })
+  @HttpCode(204)
+  @Roles(RoleEnum.ADMIN)
+  async addOrRemoveUser(
+    @Param('group_id', new JoiPipe(Joi.number().integer().required()))
+    groupId: number,
+    @Param('user_id', new JoiPipe(Joi.number().integer().required()))
+    userId: number,
+    @Param(
+      'action',
+      new JoiPipe(Joi.string().valid('add', 'remove').required()),
+    )
+    action: 'add' | 'remove',
+  ): Promise<void> {
+    return this.privilegeGroupService.userAddOrRemove(userId, groupId, action);
+  }
+
   @Delete('/:group_id')
   @ApiOperation({
     summary: 'Delete privilege group',

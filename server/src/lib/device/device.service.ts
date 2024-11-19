@@ -41,7 +41,9 @@ export class DeviceService {
       (await this.privilegeRepository.find({
         where: {
           group: {
-            users: user,
+            groups_users: {
+              userId: user.id,
+            },
           },
         },
       }));
