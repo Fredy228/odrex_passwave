@@ -6,6 +6,7 @@ import { UserRepository } from '../../repository/user.repository';
 import { ProtectAuthMiddleware } from '../../middlewares/protect-auth.middleware';
 import { CompanyRepository } from '../../repository/company.repository';
 import { PrivilegeRepository } from '../../repository/privilege.repository';
+import { GroupUserRepository } from '../../repository/group-user.repository';
 
 @Module({
   providers: [
@@ -13,6 +14,7 @@ import { PrivilegeRepository } from '../../repository/privilege.repository';
     UserRepository,
     CompanyRepository,
     PrivilegeRepository,
+    GroupUserRepository,
   ],
   controllers: [CompanyController],
 })

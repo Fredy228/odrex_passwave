@@ -6,6 +6,7 @@ import { UserRepository } from '../../repository/user.repository';
 import { ProtectStaticMiddleware } from '../../middlewares/protect-static.middleware';
 import { StaticService } from './static.service';
 import { PasswordRepository } from '../../repository/password.repository';
+import { GroupUserRepository } from '../../repository/group-user.repository';
 
 @Module({
   controllers: [StaticController],
@@ -14,6 +15,7 @@ import { PasswordRepository } from '../../repository/password.repository';
     UserRepository,
     StaticService,
     PasswordRepository,
+    GroupUserRepository,
   ],
 })
 export class StaticModule {

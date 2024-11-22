@@ -1,5 +1,12 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { DataSource, FindOptionsWhere, In, Repository } from 'typeorm';
+import {
+  DataSource,
+  FindOptionsWhere,
+  In,
+  IsNull,
+  Not,
+  Repository,
+} from 'typeorm';
 
 import { Privilege } from '../entity/privilege.entity';
 import { Permit } from '../enums/permit.enum';
@@ -7,10 +14,14 @@ import { RoleEnum } from '../enums/role.enum';
 import { CustomException } from '../services/custom-exception';
 import { User } from '../entity/user.entity';
 import { EPrivilegeList } from '../enums/privilege.enum';
+import { GroupUserRepository } from './group-user.repository';
 
 @Injectable()
 export class PrivilegeRepository extends Repository<Privilege> {
-  constructor(private dataSource: DataSource) {
+  constructor(
+    private dataSource: DataSource,
+    private readonly groupUserRepository: GroupUserRepository,
+  ) {
     super(Privilege, dataSource.createEntityManager());
   }
 
@@ -37,15 +48,24 @@ export class PrivilegeRepository extends Repository<Privilege> {
     );
   }
 
-  async getByUser(user: User): Promise<Privilege[]> {
-    return this.find({
-      where: {
-        group: {
-          groups_users: {
-            userId: user.id,
-          },
-        },
+  async getByUser(user: User, list: EPrivilegeList): Promise<Privilege[]> {
+    const groupUser = await this.groupUserRepository.findBy({
+      userId: user.id,
+    });
+    console.log('groupUser', groupUser);
+    const options: FindOptionsWhere<Privilege> = {
+      group: {
+        id: In(groupUser.map((i) => i.groupId)),
       },
+      [list]: {
+        id: Not(IsNull()),
+      },
+    };
+
+    console.log('options', options);
+
+    return this.find({
+      where: options,
     });
   }
 

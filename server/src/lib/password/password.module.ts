@@ -9,6 +9,7 @@ import { FileModule } from '../../services/file/file.module';
 import { CryptoDataModule } from '../../services/crypto-data/crypto-data.module';
 import { DeviceRepository } from '../../repository/device.repository';
 import { ProtectAuthMiddleware } from '../../middlewares/protect-auth.middleware';
+import { GroupUserRepository } from '../../repository/group-user.repository';
 
 @Module({
   imports: [FileModule, CryptoDataModule],
@@ -18,6 +19,7 @@ import { ProtectAuthMiddleware } from '../../middlewares/protect-auth.middleware
     PrivilegeRepository,
     DeviceRepository,
     UserRepository,
+    GroupUserRepository,
   ],
   controllers: [PasswordController],
 })

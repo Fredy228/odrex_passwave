@@ -1,5 +1,4 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { ILike } from 'typeorm';
 
 import { HallRepository } from '../../repository/hall.repository';
 import { HallCreateDto } from './dto/hall.create.dto';
@@ -12,6 +11,7 @@ import { RoleEnum } from '../../enums/role.enum';
 import { PrivilegeRepository } from '../../repository/privilege.repository';
 import { HallUpdateDto } from './dto/hall.update.dto';
 import { Privilege } from '../../entity/privilege.entity';
+import { EPrivilegeList } from '../../enums/privilege.enum';
 
 @Injectable()
 export class HallService {
@@ -49,7 +49,8 @@ export class HallService {
     const privileges: Privilege[] | undefined =
       user.role === RoleEnum.ADMIN
         ? undefined
-        : await this.privilegeRepository.getByUser(user);
+        : await this.privilegeRepository.getByUser(user, EPrivilegeList.HALL);
+    console.log('privileges-hall', privileges);
     if (privileges?.length === 0) return { data: [], total: 0 };
 
     return await this.hallRepository.getByPrivilege(

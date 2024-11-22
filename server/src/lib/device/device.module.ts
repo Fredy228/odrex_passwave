@@ -7,6 +7,7 @@ import { DeviceRepository } from '../../repository/device.repository';
 import { HallRepository } from '../../repository/hall.repository';
 import { PrivilegeRepository } from '../../repository/privilege.repository';
 import { UserRepository } from '../../repository/user.repository';
+import { GroupUserRepository } from '../../repository/group-user.repository';
 
 @Module({
   providers: [
@@ -15,6 +16,7 @@ import { UserRepository } from '../../repository/user.repository';
     HallRepository,
     PrivilegeRepository,
     UserRepository,
+    GroupUserRepository,
   ],
   controllers: [DeviceController],
 })

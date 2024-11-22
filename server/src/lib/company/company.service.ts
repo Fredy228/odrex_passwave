@@ -1,16 +1,15 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { CompanyRepository } from '../../repository/company.repository';
 import { CompanyCreateDto } from './dto/company.create.dto';
 import { Company } from '../../entity/company.entity';
-import { CustomException } from '../../services/custom-exception';
 import { User } from '../../entity/user.entity';
 import { RoleEnum } from '../../enums/role.enum';
 import { PrivilegeRepository } from '../../repository/privilege.repository';
 import { QuerySearchDto } from '../../dto/query-search.dto';
-import { ILike } from 'typeorm';
 import { CompanyUpdateDto } from './dto/company.update.dto';
 import { Privilege } from '../../entity/privilege.entity';
+import { EPrivilegeList } from '../../enums/privilege.enum';
 
 @Injectable()
 export class CompanyService {
@@ -40,7 +39,11 @@ export class CompanyService {
     const privileges: Privilege[] | undefined =
       user.role === RoleEnum.ADMIN
         ? undefined
-        : await this.privilegeRepository.getByUser(user);
+        : await this.privilegeRepository.getByUser(
+            user,
+            EPrivilegeList.COMPANY,
+          );
+    console.log('privileges-company', privileges);
     if (privileges?.length === 0) return { data: [], total: 0 };
 
     return await this.companyRepository.getByPrivilege(

@@ -15,6 +15,7 @@ import { RoleEnum } from '../../enums/role.enum';
 import { PrivilegeRepository } from '../../repository/privilege.repository';
 import { PasswordUpdateDto } from './dto/password.update.dto';
 import { CustomException } from '../../services/custom-exception';
+import { EPrivilegeList } from '../../enums/privilege.enum';
 
 @Injectable()
 export class PasswordService {
@@ -78,7 +79,10 @@ export class PasswordService {
     const privileges: Privilege[] | undefined =
       user.role === RoleEnum.ADMIN
         ? undefined
-        : await this.privilegeRepository.getByUser(user);
+        : await this.privilegeRepository.getByUser(
+            user,
+            EPrivilegeList.PASSWORD,
+          );
     if (privileges?.length === 0) return [];
 
     const res = await this.passwordRepository.getByPrivilege(

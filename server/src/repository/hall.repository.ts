@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { DataSource, ILike, Repository } from 'typeorm';
+import { DataSource, ILike, In, Repository } from 'typeorm';
 
 import { Hall } from '../entity/hall.entity';
 import { Privilege } from '../entity/privilege.entity';
@@ -19,13 +19,11 @@ export class HallRepository extends Repository<Hall> {
   ) {
     const [halls, total] = await this.findAndCount({
       where: {
-        privileges,
+        id: privileges && In(privileges.map((i) => i.hallId)),
         company: {
           id: companyId,
         },
-        ...{
-          name: filter.name && ILike('%' + filter.name + '%'),
-        },
+        name: filter.name && ILike('%' + filter.name + '%'),
       },
       order: {
         [sort[0]]: sort[1],

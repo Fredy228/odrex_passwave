@@ -7,8 +7,9 @@ import { Device } from '../../entity/device.entity';
 import { User } from '../../entity/user.entity';
 import { RoleEnum } from '../../enums/role.enum';
 import { PrivilegeRepository } from '../../repository/privilege.repository';
-import { Privilege } from '../../entity/privilege.entity';
 import { DeviceUpdateDto } from './dto/device.update.dto';
+import { GroupUserRepository } from '../../repository/group-user.repository';
+import { In } from 'typeorm';
 
 @Injectable()
 export class DeviceService {
@@ -16,6 +17,7 @@ export class DeviceService {
     private readonly deviceRepository: DeviceRepository,
     private readonly hallRepository: HallRepository,
     private readonly privilegeRepository: PrivilegeRepository,
+    private readonly groupUserRepository: GroupUserRepository,
   ) {}
 
   async create(hallId: number, body: DeviceCreateDto): Promise<Device> {
@@ -36,23 +38,23 @@ export class DeviceService {
   }
 
   async getAll(user: User, hallId: number): Promise<Device[]> {
-    const privileges: Privilege[] | false =
-      Boolean(user.role !== RoleEnum.ADMIN) &&
-      (await this.privilegeRepository.find({
-        where: {
-          group: {
-            groups_users: {
-              userId: user.id,
-            },
-          },
+    if (user.role !== RoleEnum.ADMIN) {
+      const groupUser = await this.groupUserRepository.findBy({
+        userId: user.id,
+      });
+      if (groupUser?.length === 0) return [];
+      const privileges = await this.privilegeRepository.findBy({
+        hall: {
+          id: hallId,
         },
-      }));
-    if (privileges?.length === 0) return [];
+        group: {
+          id: In(groupUser.map((i) => i.groupId)),
+        },
+      });
+      if (privileges?.length === 0) return [];
+    }
 
-    return this.deviceRepository.getByPrivilege(
-      hallId,
-      privileges || undefined,
-    );
+    return this.deviceRepository.getByPrivilege(hallId, undefined);
   }
 
   async update(
