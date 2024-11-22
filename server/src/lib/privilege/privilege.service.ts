@@ -1,11 +1,15 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { In } from 'typeorm';
+import { EntityManager, In } from 'typeorm';
 
 import { PrivilegeRepository } from '../../repository/privilege.repository';
 import { PrivilegeGroupRepository } from '../../repository/privilege-group.repository';
 import { UserRepository } from '../../repository/user.repository';
 import { QuerySearchDto } from '../../dto/query-search.dto';
-import { EPrivilegeList, EPrivilegeType } from '../../enums/privilege.enum';
+import {
+  EPrivilegeDirection,
+  EPrivilegeList,
+  EPrivilegeType,
+} from '../../enums/privilege.enum';
 import { CustomException } from '../../services/custom-exception';
 import { PrivilegeCreateDto } from './dto/privilege.create.dto';
 import { GroupType } from '../../enums/group.enum';
@@ -15,13 +19,12 @@ import { DeviceRepository } from '../../repository/device.repository';
 import { PasswordRepository } from '../../repository/password.repository';
 import { Hall } from '../../entity/hall.entity';
 import { Company } from '../../entity/company.entity';
-import { Device } from '../../entity/device.entity';
-import { Password } from '../../entity/password.entity';
 import { PrivilegeGroup } from '../../entity/privilege-group.entity';
 import { Permit } from '../../enums/permit.enum';
 import { Privilege } from '../../entity/privilege.entity';
 import { RoleEnum } from '../../enums/role.enum';
 import { GroupUserRepository } from '../../repository/group-user.repository';
+import { Password } from '../../entity/password.entity';
 
 @Injectable()
 export class PrivilegeService {
@@ -34,6 +37,7 @@ export class PrivilegeService {
     private readonly deviceRepository: DeviceRepository,
     private readonly passwordRepository: PasswordRepository,
     private readonly groupUserRepository: GroupUserRepository,
+    private readonly entityManager: EntityManager,
   ) {}
 
   getAll(
@@ -146,23 +150,28 @@ export class PrivilegeService {
   }
 
   async createByUser(
+    direction: EPrivilegeDirection,
     userId: number,
     list: EPrivilegeList,
     id: number,
     { access }: PrivilegeCreateDto,
-  ): Promise<Privilege> {
+  ): Promise<void> {
     const user = await this.userRepository.getById(userId);
 
-    let group = await this.privilegeGroupRepository.findOne({
+    const userGroup = await this.groupUserRepository.findOne({
       where: {
-        groups_users: {
-          userId: user.id,
+        userId: user.id,
+        group: {
+          type: GroupType.MAIN,
         },
-        type: GroupType.MAIN,
+      },
+      relations: {
+        group: true,
       },
     });
-    if (!group) {
-      group = this.privilegeGroupRepository.create({
+
+    if (!userGroup) {
+      const group = this.privilegeGroupRepository.create({
         type: GroupType.MAIN,
         name: 'Personal',
       });
@@ -175,52 +184,235 @@ export class PrivilegeService {
       );
     }
 
-    return this.create(group, list, id, access);
+    switch (direction) {
+      case EPrivilegeDirection.UP:
+        return this.createRecursiveUp(userGroup.group, list, id, access);
+      case EPrivilegeDirection.DOWN:
+        return this.createRecursiveDown(userGroup.group, list, id, access);
+    }
   }
 
   async createByGroup(
+    direction: EPrivilegeDirection,
     groupId: number,
     list: EPrivilegeList,
     id: number,
     { access }: PrivilegeCreateDto,
-  ): Promise<Privilege> {
+  ): Promise<void> {
     const group = await this.privilegeGroupRepository.getById(groupId);
 
-    return this.create(group, list, id, access);
+    switch (direction) {
+      case EPrivilegeDirection.UP:
+        return this.createRecursiveUp(group, list, id, access);
+      case EPrivilegeDirection.DOWN:
+        return this.createRecursiveDown(group, list, id, access);
+    }
   }
 
-  async create(
+  async createRecursiveUp(
     group: PrivilegeGroup,
     list: EPrivilegeList,
     id: number,
-    access: Permit,
-  ): Promise<Privilege> {
-    let target: Company | Hall | Device | Password;
-    switch (list) {
-      case EPrivilegeList.COMPANY:
-        target = await this.companyRepository.getById(id);
-        break;
-      case EPrivilegeList.HALL:
-        target = await this.hallRepository.getById(id);
-        break;
-      case EPrivilegeList.DEVICE:
-        target = await this.deviceRepository.getById(id);
-        break;
-      case EPrivilegeList.PASSWORD:
-        target = await this.passwordRepository.getById(id);
-        break;
-      default:
-        throw new CustomException(HttpStatus.BAD_REQUEST, 'Wrong name list');
-    }
+    access: Permit = Permit.READ,
+  ) {
+    let hall: Hall | null;
+    let company: Company | null;
 
-    const privilege = this.privilegeRepository.create({
-      access,
-      group,
-      [list]: target,
+    return this.entityManager.transaction(async (transaction) => {
+      if (list === EPrivilegeList.PASSWORD) {
+        const pass = await this.passwordRepository.getById(id);
+        const privilege = await this.privilegeRepository.getByGroupTarget(
+          group.id,
+          EPrivilegeList.PASSWORD,
+          pass.id,
+        );
+
+        if (privilege && list === EPrivilegeList.PASSWORD) {
+          await transaction.update(Privilege, privilege.id, { access });
+        }
+
+        if (!privilege) {
+          await transaction.save(
+            Privilege,
+            transaction.create(Privilege, {
+              group,
+              password: pass,
+              access: access,
+            }),
+          );
+        }
+        hall = await this.hallRepository.findOneBy({
+          devices: { passwords: { id: pass.id } },
+        });
+      }
+      if (list === EPrivilegeList.HALL || hall) {
+        if (!hall) hall = await this.hallRepository.getById(id);
+        const privilege = await this.privilegeRepository.getByGroupTarget(
+          group.id,
+          EPrivilegeList.HALL,
+          hall.id,
+        );
+        if (privilege && list === EPrivilegeList.HALL) {
+          await transaction.update(Privilege, privilege.id, { access });
+        }
+
+        if (!privilege) {
+          await transaction.save(
+            Privilege,
+            transaction.create(Privilege, {
+              group,
+              hall,
+              access: list === EPrivilegeList.HALL ? access : Permit.READ,
+            }),
+          );
+        }
+        company = await this.companyRepository.findOneBy({
+          halls: { id: hall.id },
+        });
+      }
+      if (list === EPrivilegeList.COMPANY || company) {
+        if (!company) company = await this.companyRepository.getById(id);
+        const privilege = await this.privilegeRepository.getByGroupTarget(
+          group.id,
+          EPrivilegeList.COMPANY,
+          company.id,
+        );
+        if (privilege && list === EPrivilegeList.COMPANY) {
+          await transaction.update(Privilege, privilege.id, { access });
+        }
+
+        if (!privilege) {
+          await transaction.save(
+            Privilege,
+            transaction.create(Privilege, {
+              group,
+              company,
+              access: list === EPrivilegeList.COMPANY ? access : Permit.READ,
+            }),
+          );
+        }
+      }
     });
-    console.log('privilege', privilege);
-    await this.privilegeRepository.save(privilege);
+  }
 
-    return privilege;
+  async createRecursiveDown(
+    group: PrivilegeGroup,
+    list: EPrivilegeList,
+    id: number,
+    access: Permit = Permit.READ,
+  ) {
+    let halls: Hall[] = [];
+    let passwords: Password[] = [];
+
+    return this.entityManager.transaction(async (transaction) => {
+      if (list === EPrivilegeList.COMPANY) {
+        const company = await this.companyRepository.getById(id);
+        const privilege = await this.privilegeRepository.getByGroupTarget(
+          group.id,
+          EPrivilegeList.COMPANY,
+          company.id,
+        );
+        if (!privilege) {
+          await transaction.save(
+            Privilege,
+            transaction.create(Privilege, {
+              group,
+              company,
+              access,
+            }),
+          );
+        } else if (access === Permit.EDIT && privilege.access === Permit.READ) {
+          await transaction.update(Privilege, privilege.id, { access });
+        }
+        halls = await this.hallRepository.findBy({
+          company: {
+            id: company.id,
+          },
+        });
+      }
+      if (list === EPrivilegeList.HALL || halls.length) {
+        if (list === EPrivilegeList.HALL)
+          halls.push(await this.hallRepository.getById(id));
+
+        const privileges = await this.privilegeRepository.getAllByGroupTarget(
+          group.id,
+          EPrivilegeList.HALL,
+          halls.map((i) => i.id),
+        );
+
+        const notExistHalls: Hall[] = [];
+        halls.forEach((h) => {
+          if (!privileges.find((p) => p.hallId === h.id)) {
+            notExistHalls.push(h);
+          }
+        });
+        if (privileges.length && access === Permit.EDIT)
+          await transaction.update(
+            Privilege,
+            privileges.map((i) => i.id),
+            {
+              access,
+            },
+          );
+        if (notExistHalls.length) {
+          await Promise.all(
+            notExistHalls.map((i) => {
+              return transaction.save(
+                transaction.create(Privilege, {
+                  group,
+                  hall: i,
+                  access,
+                }),
+              );
+            }),
+          );
+        }
+
+        passwords = await this.passwordRepository.findBy({
+          device: {
+            hall: { id: In(halls.map((i) => i.id)) },
+          },
+        });
+      }
+      if (list === EPrivilegeList.PASSWORD || passwords.length) {
+        if (list === EPrivilegeList.PASSWORD)
+          passwords.push(await this.passwordRepository.getById(id));
+
+        const privileges = await this.privilegeRepository.getAllByGroupTarget(
+          group.id,
+          EPrivilegeList.PASSWORD,
+          passwords.map((i) => i.id),
+        );
+
+        const notExistPass: Password[] = [];
+        passwords.forEach((pass) => {
+          if (!privileges.find((p) => p.passwordId === pass.id)) {
+            notExistPass.push(pass);
+          }
+        });
+        if (privileges.length && access === Permit.EDIT)
+          await transaction.update(
+            Privilege,
+            privileges.map((i) => i.id),
+            {
+              access,
+            },
+          );
+
+        if (notExistPass.length) {
+          await Promise.all(
+            notExistPass.map((i) => {
+              return transaction.save(
+                transaction.create(Privilege, {
+                  group,
+                  password: i,
+                  access,
+                }),
+              );
+            }),
+          );
+        }
+      }
+    });
   }
 }

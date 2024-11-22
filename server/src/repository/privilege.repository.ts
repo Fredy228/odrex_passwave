@@ -1,11 +1,12 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, FindOptionsWhere, In, Repository } from 'typeorm';
 
 import { Privilege } from '../entity/privilege.entity';
 import { Permit } from '../enums/permit.enum';
 import { RoleEnum } from '../enums/role.enum';
 import { CustomException } from '../services/custom-exception';
 import { User } from '../entity/user.entity';
+import { EPrivilegeList } from '../enums/privilege.enum';
 
 @Injectable()
 export class PrivilegeRepository extends Repository<Privilege> {
@@ -43,6 +44,41 @@ export class PrivilegeRepository extends Repository<Privilege> {
           groups_users: {
             userId: user.id,
           },
+        },
+      },
+    });
+  }
+
+  async getByGroupTarget(
+    groupId: number,
+    list: EPrivilegeList,
+    id: number,
+  ): Promise<Privilege | null> {
+    const where: FindOptionsWhere<Privilege> = {
+      groupId,
+      [list]: {
+        id,
+      },
+    };
+    const privilege = await this.findOne({
+      where,
+    });
+
+    if (!privilege) return null;
+
+    return privilege;
+  }
+
+  async getAllByGroupTarget(
+    groupId: number,
+    list: EPrivilegeList,
+    ids: number[],
+  ): Promise<Privilege[]> {
+    return this.find({
+      where: {
+        groupId,
+        [list]: {
+          id: In(ids),
         },
       },
     });

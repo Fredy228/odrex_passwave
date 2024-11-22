@@ -58,14 +58,14 @@ export class UserRepository extends Repository<User> {
   async getById(id: number): Promise<User> {
     const user = await this.findOne({
       where: {
-        id,
+        id: id,
       },
     });
 
     if (!user)
       throw new CustomException(
         HttpStatus.NOT_FOUND,
-        `Not found user with ID "${id}"`,
+        `Not found user with ID ${id}`,
       );
 
     return user;

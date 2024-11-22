@@ -46,21 +46,30 @@ export class Privilege {
   @JoinColumn({ name: 'companyId' })
   company: Company;
 
+  @Column({ nullable: true })
+  hallId: number;
   @ManyToOne(() => Hall, (hall) => hall.privileges, {
     onDelete: 'CASCADE',
     nullable: true,
   })
+  @JoinColumn({ name: 'hallId' })
   hall: Hall;
 
+  @Column({ nullable: true })
+  deviceId: number;
   @ManyToOne(() => Device, (device) => device.privileges, {
     onDelete: 'CASCADE',
     nullable: true,
   })
+  @JoinColumn({ name: 'deviceId' })
   device: Device;
 
+  @Column({ nullable: true })
+  passwordId: number;
   @ManyToOne(() => Password, (pass) => pass.privileges, {
     onDelete: 'CASCADE',
     nullable: true,
   })
+  @JoinColumn({ name: 'passwordId' })
   password: Password;
 }

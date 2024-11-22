@@ -20,7 +20,11 @@ import { RoleEnum } from '../../enums/role.enum';
 import { Privilege } from '../../entity/privilege.entity';
 import { QueryValidationPipe } from '../../pipe/query-parse.pipe';
 import { QuerySearchDto } from '../../dto/query-search.dto';
-import { EPrivilegeList, EPrivilegeType } from '../../enums/privilege.enum';
+import {
+  EPrivilegeDirection,
+  EPrivilegeList,
+  EPrivilegeType,
+} from '../../enums/privilege.enum';
 import { PrivilegeCreateDto } from './dto/privilege.create.dto';
 import { CustomException } from '../../services/custom-exception';
 
@@ -30,19 +34,28 @@ import { CustomException } from '../../services/custom-exception';
 export class PrivilegeController {
   constructor(private readonly privilegeService: PrivilegeService) {}
 
-  @Post('/:type/:id/:list/:target_id')
+  @Post('/:direction/:type/:id/:list/:target_id')
   @ApiOperation({
     summary: 'Add privilege by user',
     description: 'Return privilege',
   })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'Privilege created',
     type: Privilege,
   })
-  @HttpCode(201)
+  @HttpCode(200)
   @Roles(RoleEnum.ADMIN)
-  createByUser(
+  createOrUpdate(
+    @Param(
+      'direction',
+      new JoiPipe(
+        Joi.string()
+          .valid(...Object.values(EPrivilegeDirection))
+          .required(),
+      ),
+    )
+    direction: EPrivilegeDirection,
     @Param(
       'type',
       new JoiPipe(
@@ -69,9 +82,21 @@ export class PrivilegeController {
   ) {
     switch (type) {
       case EPrivilegeType.USER:
-        return this.privilegeService.createByUser(id, list, targetId, body);
+        return this.privilegeService.createByUser(
+          direction,
+          id,
+          list,
+          targetId,
+          body,
+        );
       case EPrivilegeType.GROUP:
-        return this.privilegeService.createByGroup(id, list, targetId, body);
+        return this.privilegeService.createByGroup(
+          direction,
+          id,
+          list,
+          targetId,
+          body,
+        );
       default:
         throw new CustomException(
           HttpStatus.BAD_REQUEST,

@@ -9,3 +9,8 @@ export enum EPrivilegeList {
   DEVICE = 'device',
   PASSWORD = 'password',
 }
+
+export enum EPrivilegeDirection {
+  UP = 'up',
+  DOWN = 'down',
+}
