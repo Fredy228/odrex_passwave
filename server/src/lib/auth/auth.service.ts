@@ -4,13 +4,14 @@ import { Details } from 'express-useragent';
 import * as process from 'process';
 
 import { CustomException } from '../../services/custom-exception';
-import { checkPassword } from '../../services/hashPassword';
+import { checkPassword, hashPassword } from '../../services/hashPassword';
 import { UserRepository } from '../../repository/user.repository';
 import { UserDevicesRepository } from '../../repository/user-devices.repository';
 import { TokenType } from '../../types/token.type';
 import { User } from '../../entity/user.entity';
 import { UserDevices } from '../../entity/user-devices.entity';
 import { LoginAuthDto } from './dto/login.dto';
+import { PassUpdateDto } from './dto/pass-update.dto';
 
 @Injectable()
 export class AuthService {
@@ -81,6 +82,33 @@ export class AuthService {
   async logout(currentDevice: UserDevices): Promise<void> {
     await this.devicesRepository.delete(currentDevice.id);
     return;
+  }
+
+  async changePassword(
+    user: User,
+    { currentPass, newPass }: PassUpdateDto,
+  ): Promise<void> {
+    const userWithPass = await this.usersRepository.findOne({
+      where: {
+        id: user.id,
+      },
+      select: {
+        id: true,
+        password: true,
+      },
+    });
+
+    const isValidPass = checkPassword(currentPass, userWithPass.password);
+    if (!isValidPass) {
+      throw new CustomException(
+        HttpStatus.UNAUTHORIZED,
+        `Old password is wrong`,
+      );
+    }
+
+    await this.usersRepository.update(userWithPass.id, {
+      password: await hashPassword(newPass),
+    });
   }
 
   async deleteOldSession(devices: UserDevices[]) {

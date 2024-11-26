@@ -2,12 +2,13 @@ import { ApiProperty } from '@nestjs/swagger';
 import * as Joi from 'joi';
 import { JoiSchema, JoiSchemaOptions } from 'nestjs-joi';
 import { UserPhoneType } from '../../../types/user.type';
+import { RoleEnum } from '../../../enums/role.enum';
 
 @JoiSchemaOptions({
   allowUnknown: false,
 })
 export class UserUpdateDto {
-  @ApiProperty({ required: true })
+  @ApiProperty()
   @JoiSchema(
     Joi.string()
       .email({ tlds: { allow: false } })
@@ -25,7 +26,7 @@ export class UserUpdateDto {
       'string.min': 'The password cannot be less than 1 characters',
     }),
   )
-  @ApiProperty({ required: true })
+  @ApiProperty()
   name?: string;
 
   @JoiSchema(
@@ -47,4 +48,8 @@ export class UserUpdateDto {
     }).allow(null),
   )
   phone?: UserPhoneType | null;
+
+  @ApiProperty()
+  @JoiSchema(Joi.string().valid(...Object.values(RoleEnum)))
+  role?: RoleEnum;
 }

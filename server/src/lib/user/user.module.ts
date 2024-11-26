@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
@@ -13,27 +13,6 @@ import { FileModule } from '../../services/file/file.module';
 })
 export class UserModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ProtectAuthMiddleware).forRoutes(
-      {
-        path: '/user',
-        method: RequestMethod.POST,
-      },
-      {
-        path: '/user',
-        method: RequestMethod.GET,
-      },
-      {
-        path: '/user/me',
-        method: RequestMethod.GET,
-      },
-      {
-        path: '/user/:user_id',
-        method: RequestMethod.PATCH,
-      },
-      {
-        path: '/user/:user_id',
-        method: RequestMethod.DELETE,
-      },
-    );
+    consumer.apply(ProtectAuthMiddleware).forRoutes(UserController);
   }
 }

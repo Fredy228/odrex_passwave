@@ -1,9 +1,10 @@
-import { DataSource, ILike, IsNull, Not, Or, Repository } from 'typeorm';
+import { DataSource, ILike, In, IsNull, Not, Or, Repository } from 'typeorm';
 import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { User } from '../entity/user.entity';
 import { QuerySearchDto } from '../dto/query-search.dto';
 import { CustomException } from '../services/custom-exception';
+import { GroupType } from '../enums/group.enum';
 
 @Injectable()
 export class UserRepository extends Repository<User> {
@@ -19,21 +20,27 @@ export class UserRepository extends Repository<User> {
       if (['name', 'email'].includes(key)) {
         filter[key] = ILike('%' + filter[key] + '%');
       }
-      if (!key.startsWith('not_')) return;
-      const newKey = key.replace('not_', '');
 
-      if (typeof filter[key] === 'object') {
-        const subObject = Object.entries(filter[key])[0];
-        if (subObject) {
-          filter[newKey] = {
-            [subObject[0]]: Or(Not(subObject[1]), IsNull()),
-          };
-        }
-      } else {
-        filter[newKey] = Not(filter[key]);
+      if (key === 'group_with') {
+        filter['groups_users'] = {
+          groupId: filter[key],
+        };
+        delete filter['group_with'];
       }
-      delete filter[key];
     });
+    if (filter.hasOwnProperty('group_without')) {
+      const usersInGroup = await this.find({
+        where: {
+          groups_users: {
+            groupId: filter['group_without'],
+          },
+        },
+        select: { id: true },
+      });
+
+      filter['id'] = Not(In(usersInGroup.map((i) => i.id)));
+      delete filter['group_without'];
+    }
     console.log('filter', filter);
     const [users, total] = await this.findAndCount({
       where: filter,
@@ -67,6 +74,8 @@ export class UserRepository extends Repository<User> {
         HttpStatus.NOT_FOUND,
         `Not found user with ID ${id}`,
       );
+
+    user.password = undefined;
 
     return user;
   }

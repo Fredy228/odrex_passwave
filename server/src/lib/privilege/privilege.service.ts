@@ -34,7 +34,6 @@ export class PrivilegeService {
     private readonly userRepository: UserRepository,
     private readonly hallRepository: HallRepository,
     private readonly companyRepository: CompanyRepository,
-    private readonly deviceRepository: DeviceRepository,
     private readonly passwordRepository: PasswordRepository,
     private readonly groupUserRepository: GroupUserRepository,
     private readonly entityManager: EntityManager,
@@ -67,7 +66,7 @@ export class PrivilegeService {
     const { data: users, total } = await this.userRepository.getAllUsers({
       sort,
       range,
-      filter: { ...filter, not_role: RoleEnum.ADMIN },
+      filter: { ...filter },
     });
 
     const groups = await this.privilegeGroupRepository.find({
@@ -98,13 +97,17 @@ export class PrivilegeService {
       const result = {
         ...u,
         access: null,
+        privilege_id: null,
       };
       const findGroup = groups.find((g) => g.groups_users[0]?.userId === u.id);
       if (findGroup) {
         const findPrivilege = privileges.find(
           (p) => p.groupId === findGroup.id,
         );
-        if (findPrivilege) result.access = findPrivilege.access;
+        if (findPrivilege) {
+          result.access = findPrivilege.access;
+          result.privilege_id = findPrivilege.id;
+        }
       }
       return result;
     });
@@ -139,9 +142,13 @@ export class PrivilegeService {
       const result = {
         ...g,
         access: null,
+        privilege_id: null,
       };
       const findPrivilege = privileges.find((p) => p.groupId === g.id);
-      if (findPrivilege) result.access = findPrivilege.access;
+      if (findPrivilege) {
+        result.access = findPrivilege.access;
+        result.privilege_id = findPrivilege.id;
+      }
 
       return result;
     });
@@ -414,5 +421,16 @@ export class PrivilegeService {
         }
       }
     });
+  }
+
+  async delete(privilegeId: number) {
+    const privilege = await this.privilegeRepository.findOneBy({
+      id: privilegeId,
+    });
+    if (!privilege)
+      throw new CustomException(
+        HttpStatus.NOT_FOUND,
+        `Not found privilege with ID ${privilegeId}`,
+      );
   }
 }

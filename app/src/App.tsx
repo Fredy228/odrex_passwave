@@ -10,6 +10,7 @@ import { RoleEnum } from "@/enum/role.enum";
 const AuthScreen = lazy(() => import("./screens/auth/AuthScreen"));
 const HomeScreen = lazy(() => import("./screens/home/HomeScreen"));
 const UsersScreen = lazy(() => import("./screens/users/UsersScreen"));
+const UserByIdScreen = lazy(() => import("./screens/users/UserByIdScreen"));
 const GroupsScreen = lazy(() => import("./screens/groups/GroupsScreen"));
 const CompanyScreen = lazy(() => import("./screens/company/CompanyScreen"));
 const HallsScreen = lazy(() => import("./screens/halls/HallsScreen"));
@@ -54,6 +55,14 @@ function App() {
           element={
             <PrivateRoute access={[RoleEnum.ADMIN]}>
               <UsersScreen />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={"/users/:userId"}
+          element={
+            <PrivateRoute access={[RoleEnum.ADMIN]}>
+              <UserByIdScreen />
             </PrivateRoute>
           }
         />

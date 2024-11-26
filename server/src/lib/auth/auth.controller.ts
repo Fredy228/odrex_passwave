@@ -3,6 +3,8 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
+  Patch,
   Post,
   Req,
   Res,
@@ -17,6 +19,8 @@ import { User } from '../../entity/user.entity';
 import { UserDevices } from '../../entity/user-devices.entity';
 import { LoginAuthDto } from './dto/login.dto';
 import { TokenDto } from './dto/tokent.dto';
+import { PassUpdateDto } from './dto/pass-update.dto';
+import { ReqProtectedType } from '../../types/protect.type';
 
 @ApiTags('Authorization')
 @Controller('auth')
@@ -90,6 +94,20 @@ export class AuthController {
     @Req() req: Request & { user: User; currentDevice: UserDevices },
   ) {
     return this.authService.logout(req.currentDevice);
+  }
+
+  @Patch('/change-pass')
+  @ApiOperation({
+    summary: 'Change user password',
+    description: 'Changed user password',
+  })
+  @ApiResponse({ status: 204, description: 'Password updated' })
+  @HttpCode(204)
+  async restorePassword(
+    @Req() req: ReqProtectedType,
+    @Body() body: PassUpdateDto,
+  ) {
+    return this.authService.changePassword(req.user, body);
   }
 
   // @Patch('/restore-pass/:key')

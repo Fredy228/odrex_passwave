@@ -64,10 +64,7 @@ export class PrivilegeGroupService {
       this.privilegeGroupRepository.getById(idGroup),
       this.userRepository.getById(idUser),
     ]);
-    console.log('group', group.id);
-    console.log('user', user.id);
-    // const group = await this.privilegeGroupRepository.getById(idGroup);
-    // const user = await this.userRepository.getById(idUser);
+
     const group_user = await this.groupUserRepository.findOne({
       where: {
         userId: user.id,

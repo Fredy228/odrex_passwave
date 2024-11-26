@@ -6,6 +6,7 @@ import { ProtectRefreshMiddleware } from '../../middlewares/protect-refresh.midd
 import { UserAgentMiddleware } from '../../middlewares/user-agent.middleware';
 import { UserRepository } from '../../repository/user.repository';
 import { UserDevicesRepository } from '../../repository/user-devices.repository';
+import { ProtectAuthMiddleware } from '../../middlewares/protect-auth.middleware';
 
 @Module({
   controllers: [AuthController],
@@ -14,6 +15,11 @@ import { UserDevicesRepository } from '../../repository/user-devices.repository'
 })
 export class AuthModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ProtectAuthMiddleware).forRoutes({
+      path: '/auth/change-pass',
+      method: RequestMethod.PATCH,
+    });
+
     consumer.apply(ProtectRefreshMiddleware).forRoutes(
       {
         path: '/auth/refresh',

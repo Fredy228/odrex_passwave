@@ -21,7 +21,7 @@ const GroupUsersContent: FC<Props> = ({ group }) => {
     type: isOnlyGroup ? "list" : "add",
     refresh: () => setRefresh((prev) => !prev),
   });
-  const { page, sort, pageSize, setQuery, queryGet } = usePagination();
+  const { pageSize, setQuery, queryGet } = usePagination();
 
   const [listUser, setListUser] = useState<UserInterface[]>([]);
   const [total, setTotal] = useState<number>(0);
@@ -42,9 +42,7 @@ const GroupUsersContent: FC<Props> = ({ group }) => {
       ...queryGet,
       filter: {
         ...queryGet.filter,
-        [isOnlyGroup ? "groups_users" : "not_groups_users"]: {
-          groupId: group.id,
-        },
+        [isOnlyGroup ? "group_with" : "group_without"]: group.id,
       },
     })
       .then((data) => {

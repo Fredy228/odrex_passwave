@@ -72,12 +72,28 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: 'User got',
-    type: [PickType(User, ['id', 'name', 'role', 'email'])],
+    type: [PickType(User, ['id', 'name', 'role', 'email', 'phone'])],
   })
   @HttpCode(200)
   @Roles()
   async getMe(@Req() req: ReqProtectedType) {
     return req.user;
+  }
+
+  @Get('/:user_id')
+  @ApiOperation({ summary: 'Get your user', description: 'Return user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User got',
+    type: [PickType(User, ['id', 'name', 'role', 'email', 'phone'])],
+  })
+  @HttpCode(200)
+  @Roles(RoleEnum.ADMIN)
+  async getUserById(
+    @Param('user_id', new JoiPipe(Joi.number().integer().required()))
+    userId: number,
+  ) {
+    return this.userService.getById(userId);
   }
 
   @Patch('/:user_id')

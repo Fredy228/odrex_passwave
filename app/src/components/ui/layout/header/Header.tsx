@@ -112,8 +112,8 @@ const Header: FC = () => {
               open={Boolean(anchorElUser)}
               onClose={() => setAnchorElUser(null)}
             >
-              <MenuItem>
-                <Typography>Settings</Typography>
+              <MenuItem onClick={() => navigate(`/users/${user?.id}`)}>
+                <Typography>Profile</Typography>
               </MenuItem>
               <MenuItem onClick={handleLogout}>
                 <Typography>Logout</Typography>

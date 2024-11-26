@@ -45,6 +45,18 @@ export const getAllUsers = async ({
   return data;
 };
 
-export const deleteUserById = async (id: number) => {
+export const getUserById = async (id: number): Promise<UserInterface> => {
+  const { data } = await $api.get<UserInterface>(`/user/${id}`);
+  return data;
+};
+
+export const updateUserById = async (
+  id: number,
+  body: Partial<Omit<BodyCreateUserType, "avatar" | "password">>,
+): Promise<void> => {
+  await $api.patch(`/user/${id}`, body);
+};
+
+export const deleteUserById = async (id: number): Promise<void> => {
   await $api.delete(`/user/${id}`);
 };
