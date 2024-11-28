@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import UserCreate from "@/components/ui/users/create/UserCreate";
 import { MainBox } from "@/components/ui/users/users.styled";
 import { UserInterface } from "@/interface/user.interface";
-import { QueryGetType } from "@/types/query.type";
 import usePagination from "@/hooks/use-pagination";
 import { getAllUsers } from "@/api/user.api";
 import { outputError } from "@/services/output-error";

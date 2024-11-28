@@ -1,4 +1,5 @@
 import { Permit } from "@/enum/privilege.enum";
+import { RoleEnum } from "@/enum/role.enum";
 
 export interface PrivilegeInterface {
   id: number;
@@ -8,4 +9,13 @@ export interface PrivilegeInterface {
   hallId: number | null;
   deviceId: number | null;
   passwordId: number | null;
+}
+
+export interface PrivilegeItemInterface {
+  id: number;
+  name: string;
+  access: Permit | null;
+  privilege_id: number | null;
+  email?: string;
+  role?: RoleEnum;
 }

@@ -11,16 +11,19 @@ import {
 import BusinessIcon from "@mui/icons-material/Business";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 import usePagination from "@/hooks/use-pagination";
-import { QueryGetType } from "@/types/query.type";
 import { getAllCompanies } from "@/api/company.api";
 import { outputError } from "@/services/output-error";
 import { CompanyInterface } from "@/interface/company.interface";
 import useUserStore from "@/global-state/user.store";
 import { RoleEnum } from "@/enum/role.enum";
 import CompanyCreate from "@/components/ui/company/create/CompanyCreate";
-import { ButtonCreate } from "@/components/reused/button/button-create.styled";
+import {
+  ButtonCircleRight,
+  ButtonCreate,
+} from "@/components/reused/button/button-create.styled";
 import {
   Item,
   ItemContent,

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -142,5 +143,23 @@ export class PrivilegeController {
     query: QuerySearchDto,
   ) {
     return this.privilegeService.getAll(type, list, id, query);
+  }
+
+  @Delete('/:id')
+  @ApiOperation({
+    summary: 'Delete privilege',
+    description: 'Return privilege',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Privilege got',
+  })
+  @HttpCode(200)
+  @Roles(RoleEnum.ADMIN)
+  async delete(
+    @Param('id', new JoiPipe(Joi.number().integer().required()))
+    id: number,
+  ) {
+    return this.privilegeService.delete(id);
   }
 }

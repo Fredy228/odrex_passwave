@@ -19,3 +19,11 @@ export enum Permit {
   READ = "read",
   EDIT = "edit",
 }
+
+export enum PermitEdit {
+  READ = "read",
+  READ_ALL = "read-all",
+  EDIT = "edit",
+  EDIT_ALL = "edit-all",
+  NOT = "not",
+}

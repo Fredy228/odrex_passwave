@@ -25,12 +25,22 @@ import { scrollToTop } from "@/services/scroll-to-top";
 import { getAllHalls } from "@/api/hall.api";
 import { outputError } from "@/services/output-error";
 import { RoleEnum } from "@/enum/role.enum";
-import { ButtonCreate } from "@/components/reused/button/button-create.styled";
+import {
+  ButtonCircleRight,
+  ButtonCreate,
+} from "@/components/reused/button/button-create.styled";
 import HallCreate from "@/components/ui/hall/create/HallCreate";
 import HallDelete from "@/components/ui/hall/delete/HallDelete";
 import HallUpdate from "@/components/ui/hall/update/HallUpdate";
+import SettingsIcon from "@mui/icons-material/Settings";
+import { CompanyInterface } from "@/interface/company.interface";
+import Privileges from "@/components/ui/privileges/Privileges";
+import { EPrivilegeList } from "@/enum/privilege.enum";
 
-const Hall: FC = () => {
+type Props = {
+  parentCompany: CompanyInterface | null;
+};
+const Hall: FC<Props> = ({ parentCompany }) => {
   const { companyId } = useParams();
   const user = useUserStore((state) => state.user);
   const navigate = useNavigate();
@@ -44,6 +54,7 @@ const Hall: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isFetching = useRef<boolean>(false);
   const [isShowModalCreate, setIsShowModalCreate] = useState<boolean>(false);
+  const [isShowSettings, setIsShowSettings] = useState<number | null>(null);
   const [refresh, setRefresh] = useState<boolean>(false);
 
   const onItemClick = (id: number) => {
@@ -57,7 +68,7 @@ const Hall: FC = () => {
   };
 
   useEffect(() => {
-    if (isFetching.current || !companyId) return;
+    if (isFetching.current || !companyId || Boolean(isShowSettings)) return;
     isFetching.current = true;
     setIsLoading(true);
 
@@ -76,6 +87,12 @@ const Hall: FC = () => {
 
   return (
     <>
+      <Privileges
+        id={isShowSettings}
+        close={() => setIsShowSettings(null)}
+        title={parentCompany?.name || ""}
+        listType={EPrivilegeList.COMPANY}
+      />
       <HallCreate
         close={() => setIsShowModalCreate(false)}
         isShow={isShowModalCreate}
@@ -93,9 +110,16 @@ const Hall: FC = () => {
         id={deleteHall}
       />
       {user?.role === RoleEnum.ADMIN && (
-        <ButtonCreate onClick={() => setIsShowModalCreate(true)}>
-          <AddIcon />
-        </ButtonCreate>
+        <>
+          <ButtonCreate onClick={() => setIsShowModalCreate(true)}>
+            <AddIcon />
+          </ButtonCreate>
+          <ButtonCircleRight
+            onClick={() => setIsShowSettings(Number(companyId))}
+          >
+            <SettingsIcon />
+          </ButtonCircleRight>
+        </>
       )}
       <List>
         {isLoading

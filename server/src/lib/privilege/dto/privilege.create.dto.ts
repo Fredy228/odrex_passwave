@@ -10,7 +10,7 @@ export class PrivilegeCreateDto {
   @JoiSchema(
     Joi.string()
       .valid(...Object.values(Permit))
-      .default(Permit.READ),
+      .required(),
   )
   @ApiProperty()
   access: Permit;

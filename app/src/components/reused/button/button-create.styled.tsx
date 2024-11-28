@@ -27,3 +27,8 @@ export const ButtonCreate = styled(IconButton)`
     background-color: ${theme.palette.primary.main};
   }
 `;
+
+export const ButtonCircleRight = styled(ButtonCreate)`
+  left: initial;
+  right: 20px;
+`;
