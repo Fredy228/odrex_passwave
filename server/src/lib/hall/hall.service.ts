@@ -12,6 +12,7 @@ import { PrivilegeRepository } from '../../repository/privilege.repository';
 import { HallUpdateDto } from './dto/hall.update.dto';
 import { Privilege } from '../../entity/privilege.entity';
 import { EPrivilegeList } from '../../enums/privilege.enum';
+import { GroupUserRepository } from '../../repository/group-user.repository';
 
 @Injectable()
 export class HallService {
@@ -19,6 +20,7 @@ export class HallService {
     private readonly hallRepository: HallRepository,
     private readonly companyRepository: CompanyRepository,
     private readonly privilegeRepository: PrivilegeRepository,
+    private readonly groupUserRepository: GroupUserRepository,
   ) {}
 
   async create(companyId: number, body: HallCreateDto): Promise<Hall> {
@@ -50,7 +52,6 @@ export class HallService {
       user.role === RoleEnum.ADMIN
         ? undefined
         : await this.privilegeRepository.getByUser(user, EPrivilegeList.HALL);
-    console.log('privileges-hall', privileges);
     if (privileges?.length === 0) return { data: [], total: 0 };
 
     return await this.hallRepository.getByPrivilege(
@@ -64,7 +65,28 @@ export class HallService {
     );
   }
 
-  async getById(hallId: number): Promise<Hall> {
+  async getById(user: User, hallId: number): Promise<Hall> {
+    if (user.role === RoleEnum.ADMIN)
+      return this.hallRepository.getById(hallId);
+
+    const groupUser = await this.groupUserRepository.findOneBy({
+      user: {
+        id: user.id,
+      },
+      group: {
+        privileges: {
+          hall: {
+            id: hallId,
+          },
+        },
+      },
+    });
+
+    if (!groupUser)
+      throw new CustomException(
+        HttpStatus.NOT_FOUND,
+        `Not found hall with ID ${hallId}`,
+      );
     return this.hallRepository.getById(hallId);
   }
 

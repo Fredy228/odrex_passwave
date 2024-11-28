@@ -79,12 +79,13 @@ export class HallController {
     type: Hall,
   })
   @HttpCode(200)
-  @Roles(RoleEnum.ADMIN)
+  @Roles()
   async getById(
+    @Req() { user }: ReqProtectedType,
     @Param('hall_id', new JoiPipe(Joi.number().integer().required()))
     hallId: number,
   ) {
-    return this.hallService.getById(hallId);
+    return this.hallService.getById(user, hallId);
   }
 
   @Patch('/:hall_id')

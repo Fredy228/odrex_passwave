@@ -185,8 +185,6 @@ export class PrivilegeService {
       await this.groupUserRepository.save(userGroup);
     }
 
-    console.log('access', access);
-
     switch (direction) {
       case EPrivilegeDirection.UP:
         return this.createRecursiveUp(userGroup.group, list, id, access);

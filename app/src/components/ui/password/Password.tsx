@@ -1,9 +1,8 @@
-import { type FC, useEffect, useRef, useState } from "react";
+import React, { type FC, useEffect, useRef, useState } from "react";
 import { Button, Stack } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
 import usePagination from "@/hooks/use-pagination";
-import { QueryGetType } from "@/types/query.type";
 import { outputError } from "@/services/output-error";
 import { deletePassById, getAllPass } from "@/api/password.api";
 import { PasswordInterface } from "@/interface/password.interface";
@@ -13,6 +12,8 @@ import PassCreate from "@/components/ui/password/create/PassCreate";
 import Search from "@/components/reused/search/Search";
 import PasswordMore from "@/components/ui/password/more/PasswordMore";
 import PassUpdate from "@/components/ui/password/update/PassUpdate";
+import { EPrivilegeList } from "@/enum/privilege.enum";
+import Privileges from "@/components/ui/privileges/Privileges";
 
 type Props = {
   id: number | null;
@@ -26,6 +27,8 @@ const Password: FC<Props> = ({ id }) => {
     setEditPass,
     isShowMore,
     setIsShowMore,
+    privilegeShow,
+    setPrivilegeShow,
   } = usePassColumns();
   const [list, setList] = useState<PasswordInterface[]>([]);
   const [total, setTotal] = useState<number>(0);
@@ -60,6 +63,12 @@ const Password: FC<Props> = ({ id }) => {
 
   return (
     <>
+      <Privileges
+        id={privilegeShow?.id || null}
+        close={() => setPrivilegeShow(null)}
+        title={privilegeShow?.name || ""}
+        listType={EPrivilegeList.PASSWORD}
+      />
       <PassCreate
         id={id}
         refresh={handleRefresh}

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { CompanyRepository } from '../../repository/company.repository';
 import { CompanyCreateDto } from './dto/company.create.dto';
@@ -10,12 +10,15 @@ import { QuerySearchDto } from '../../dto/query-search.dto';
 import { CompanyUpdateDto } from './dto/company.update.dto';
 import { Privilege } from '../../entity/privilege.entity';
 import { EPrivilegeList } from '../../enums/privilege.enum';
+import { CustomException } from '../../services/custom-exception';
+import { GroupUserRepository } from '../../repository/group-user.repository';
 
 @Injectable()
 export class CompanyService {
   constructor(
     private readonly companyRepository: CompanyRepository,
     private readonly privilegeRepository: PrivilegeRepository,
+    private readonly groupUserRepository: GroupUserRepository,
   ) {}
 
   async create(body: CompanyCreateDto): Promise<Company> {
@@ -28,7 +31,29 @@ export class CompanyService {
     return newCompany;
   }
 
-  async getById(companyId: number) {
+  async getById(user: User, companyId: number) {
+    if (user.role === RoleEnum.ADMIN)
+      return this.companyRepository.getById(companyId);
+
+    const groupUser = await this.groupUserRepository.findOneBy({
+      user: {
+        id: user.id,
+      },
+      group: {
+        privileges: {
+          company: {
+            id: companyId,
+          },
+        },
+      },
+    });
+
+    if (!groupUser)
+      throw new CustomException(
+        HttpStatus.NOT_FOUND,
+        `Not found company with ID ${companyId}`,
+      );
+
     return this.companyRepository.getById(companyId);
   }
 
@@ -43,7 +68,6 @@ export class CompanyService {
             user,
             EPrivilegeList.COMPANY,
           );
-    console.log('privileges-company', privileges);
     if (privileges?.length === 0) return { data: [], total: 0 };
 
     return await this.companyRepository.getByPrivilege(

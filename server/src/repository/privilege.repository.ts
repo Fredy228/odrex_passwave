@@ -52,7 +52,6 @@ export class PrivilegeRepository extends Repository<Privilege> {
     const groupUser = await this.groupUserRepository.findBy({
       userId: user.id,
     });
-    console.log('groupUser', groupUser);
     const options: FindOptionsWhere<Privilege> = {
       group: {
         id: In(groupUser.map((i) => i.groupId)),
@@ -61,8 +60,6 @@ export class PrivilegeRepository extends Repository<Privilege> {
         id: Not(IsNull()),
       },
     };
-
-    console.log('options', options);
 
     return this.find({
       where: options,

@@ -57,7 +57,7 @@ const Header: FC = () => {
   };
 
   return (
-    <AppBar position="static" color={"secondary"}>
+    <AppBar id={"app-bar"} position="static" color={"secondary"}>
       <ContainerCustom>
         <Toolbar disableGutters>
           <LogoCustom />

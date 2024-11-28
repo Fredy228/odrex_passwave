@@ -6,6 +6,7 @@ import {
   Pagination,
   Skeleton,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -20,10 +21,7 @@ import { CompanyInterface } from "@/interface/company.interface";
 import useUserStore from "@/global-state/user.store";
 import { RoleEnum } from "@/enum/role.enum";
 import CompanyCreate from "@/components/ui/company/create/CompanyCreate";
-import {
-  ButtonCircleRight,
-  ButtonCreate,
-} from "@/components/reused/button/button-create.styled";
+import { ButtonCreate } from "@/components/reused/button/button-create.styled";
 import {
   Item,
   ItemContent,
@@ -107,37 +105,39 @@ const Company: FC = () => {
               </Item>
             ))
           : list.map((item) => (
-              <Item key={item.id} elevation={3}>
-                <ItemContent onClick={() => onItemClick(item.id)}>
-                  <BusinessIcon />
-                  <Typography fontWeight={600} fontSize={"large"}>
-                    {item.name}
-                  </Typography>
-                </ItemContent>
-                {user?.role === RoleEnum.ADMIN && (
-                  <Stack
-                    direction={"row"}
-                    spacing={0}
-                    title={"action"}
-                    position={"absolute"}
-                    zIndex={200}
-                    sx={{ top: "10px", right: "10px" }}
-                  >
-                    <IconButton
-                      type={"button"}
-                      onClick={() => setUpdateCompany(item.id)}
+              <Tooltip key={item.id} title={item.notes}>
+                <Item elevation={3}>
+                  <ItemContent onClick={() => onItemClick(item.id)}>
+                    <BusinessIcon />
+                    <Typography fontWeight={600} fontSize={"large"}>
+                      {item.name}
+                    </Typography>
+                  </ItemContent>
+                  {user?.role === RoleEnum.ADMIN && (
+                    <Stack
+                      direction={"row"}
+                      spacing={0}
+                      title={"action"}
+                      position={"absolute"}
+                      zIndex={200}
+                      sx={{ top: "10px", right: "10px" }}
                     >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      type={"button"}
-                      onClick={() => setDeleteCompany(item.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Stack>
-                )}
-              </Item>
+                      <IconButton
+                        type={"button"}
+                        onClick={() => setUpdateCompany(item.id)}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        type={"button"}
+                        onClick={() => setDeleteCompany(item.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Stack>
+                  )}
+                </Item>
+              </Tooltip>
             ))}
       </List>
       {!list.length && !isLoading && (

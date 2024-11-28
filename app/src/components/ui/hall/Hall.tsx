@@ -5,6 +5,7 @@ import {
   Pagination,
   Skeleton,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
@@ -130,37 +131,39 @@ const Hall: FC<Props> = ({ parentCompany }) => {
               </Item>
             ))
           : list.map((item) => (
-              <Item key={item.id} elevation={3}>
-                <ItemContent onClick={() => onItemClick(item.id)}>
-                  <MeetingRoomIcon />
-                  <Typography fontWeight={600} fontSize={"large"}>
-                    {item.name}
-                  </Typography>
-                </ItemContent>
-                {user?.role === RoleEnum.ADMIN && (
-                  <Stack
-                    direction={"row"}
-                    spacing={0}
-                    title={"action"}
-                    position={"absolute"}
-                    zIndex={200}
-                    sx={{ top: "10px", right: "10px" }}
-                  >
-                    <IconButton
-                      type={"button"}
-                      onClick={() => setUpdateHall(item.id)}
+              <Tooltip key={item.id} title={item.notes}>
+                <Item elevation={3}>
+                  <ItemContent onClick={() => onItemClick(item.id)}>
+                    <MeetingRoomIcon />
+                    <Typography fontWeight={600} fontSize={"large"}>
+                      {item.name}
+                    </Typography>
+                  </ItemContent>
+                  {user?.role === RoleEnum.ADMIN && (
+                    <Stack
+                      direction={"row"}
+                      spacing={0}
+                      title={"action"}
+                      position={"absolute"}
+                      zIndex={200}
+                      sx={{ top: "10px", right: "10px" }}
                     >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      type={"button"}
-                      onClick={() => setDeleteHall(item.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Stack>
-                )}
-              </Item>
+                      <IconButton
+                        type={"button"}
+                        onClick={() => setUpdateHall(item.id)}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        type={"button"}
+                        onClick={() => setDeleteHall(item.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Stack>
+                  )}
+                </Item>
+              </Tooltip>
             ))}
       </List>
       {!list.length && !isLoading && (

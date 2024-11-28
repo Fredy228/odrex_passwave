@@ -7,12 +7,17 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import EditIcon from "@mui/icons-material/Edit";
 import ReadMoreIcon from "@mui/icons-material/ReadMore";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 import { BoxCenter } from "@/components/ui/users/users.styled";
+import { PasswordInterface } from "@/interface/password.interface";
 
 const usePassColumns = () => {
   const [deletePass, setDeletePass] = useState<number | null>(null);
   const [editPass, setEditPass] = useState<number | null>(null);
+  const [privilegeShow, setPrivilegeShow] = useState<PasswordInterface | null>(
+    null,
+  );
   const [isShowMore, setIsShowMore] = useState<number | null>(null);
 
   const handleCopyPass = (result: boolean) => {
@@ -104,6 +109,24 @@ const usePassColumns = () => {
       },
     },
     {
+      field: "privilege",
+      headerName: "Privilege",
+      sortable: false,
+      editable: false,
+      width: 40,
+      type: "actions",
+      renderCell: (params: GridCellParams) => (
+        <BoxCenter>
+          <IconButton
+            type={"button"}
+            onClick={() => setPrivilegeShow(params.row)}
+          >
+            <SettingsIcon />
+          </IconButton>
+        </BoxCenter>
+      ),
+    },
+    {
       field: "edit",
       headerName: "Edit",
       sortable: false,
@@ -149,6 +172,8 @@ const usePassColumns = () => {
     setEditPass,
     isShowMore,
     setIsShowMore,
+    privilegeShow,
+    setPrivilegeShow,
   };
 };
 export default usePassColumns;

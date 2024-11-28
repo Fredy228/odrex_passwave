@@ -1,4 +1,10 @@
-import React, { type FC, useMemo, useState } from "react";
+import React, {
+  type FC,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Options, Edge, Node } from "vis-network/standalone/esm/vis-network";
 import { Paper } from "@mui/material";
 
@@ -26,7 +32,6 @@ type Props = {
   refresh: () => void;
 };
 const DeviceSchema: FC<Props> = ({ devices, refresh }) => {
-  console.log("Rendering DeviceSchema");
   const [deviceDelete, setDeviceDelete] = useState<number | null>(null);
   const [deviceUpdate, setDeviceUpdate] = useState<number | null>(null);
 
@@ -77,6 +82,12 @@ const DeviceSchema: FC<Props> = ({ devices, refresh }) => {
   //   network.current?.focus(5);
   // };
 
+  const appBar = document.getElementById("app-bar");
+  const breadcrumb = document.getElementById("bread-crumb");
+  let heightSchema = 40;
+  if (appBar) heightSchema += appBar.offsetHeight;
+  if (breadcrumb) heightSchema += breadcrumb.offsetHeight;
+
   return (
     <>
       <DeviceUpdate
@@ -98,7 +109,11 @@ const DeviceSchema: FC<Props> = ({ devices, refresh }) => {
       />
       <Paper
         elevation={3}
-        sx={{ height: "600px", width: "100%", position: "relative" }}
+        sx={{
+          height: heightSchema ? `calc(100vh - ${heightSchema}px)` : "100vh",
+          width: "100%",
+          position: "relative",
+        }}
         ref={ref}
       />
     </>

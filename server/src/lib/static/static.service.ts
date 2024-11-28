@@ -1,8 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { User } from '../../entity/user.entity';
-import { PrivilegeRepository } from '../../repository/privilege.repository';
-import { Privilege } from '../../entity/privilege.entity';
 import { RoleEnum } from '../../enums/role.enum';
 import { CustomException } from '../../services/custom-exception';
 import { pathExistsSync, lstatSync } from 'fs-extra';
@@ -11,12 +9,13 @@ import * as process from 'process';
 
 import { PasswordRepository } from '../../repository/password.repository';
 import { FileType } from '../../types/file.type';
+import { GroupUserRepository } from '../../repository/group-user.repository';
 
 @Injectable()
 export class StaticService {
   constructor(
-    private readonly privilegeRepository: PrivilegeRepository,
     private readonly passwordRepository: PasswordRepository,
+    private readonly groupUserRepository: GroupUserRepository,
   ) {}
 
   async getPassFile(
@@ -29,18 +28,25 @@ export class StaticService {
 
     const isAdmin: boolean = Boolean(user.role === RoleEnum.ADMIN);
 
+    const groupUser = await this.groupUserRepository.findOneBy({
+      user: {
+        id: user.id,
+      },
+      group: {
+        privileges: {
+          password: {
+            id: passId,
+          },
+        },
+      },
+    });
+
+    if (!groupUser && !isAdmin)
+      throw new CustomException(HttpStatus.FORBIDDEN, `Not access`);
+
     const password = await this.passwordRepository.findOne({
       where: {
         id: passId,
-        privileges: isAdmin
-          ? undefined
-          : {
-              group: {
-                groups_users: {
-                  userId: user.id,
-                },
-              },
-            },
       },
       select: {
         id: true,

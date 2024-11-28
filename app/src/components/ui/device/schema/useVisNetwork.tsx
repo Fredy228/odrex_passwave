@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Data,
   Edge,
@@ -25,7 +18,6 @@ const useVisNetwork = ({ edges, nodes, options }: UseVisNetworkOptions) => {
   const ref = useRef<HTMLDivElement>(null);
   const [selectedNode, setSelectedNode] = useState<null | number>(null);
 
-  // const data: Data = { nodes, edges };
   const data: Data = useMemo(
     () => ({
       nodes,
@@ -53,7 +45,6 @@ const useVisNetwork = ({ edges, nodes, options }: UseVisNetworkOptions) => {
     }
 
     return () => {
-      console.log("unmount-network");
       network.current?.off("click");
       network.current?.destroy();
     };

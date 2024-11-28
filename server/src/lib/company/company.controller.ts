@@ -73,12 +73,13 @@ export class CompanyController {
     type: Company,
   })
   @HttpCode(200)
-  @Roles(RoleEnum.ADMIN)
+  @Roles()
   async getById(
+    @Req() { user }: ReqProtectedType,
     @Param('company_id', new JoiPipe(Joi.number().integer().required()))
     companyId: number,
   ) {
-    return this.companyService.getById(companyId);
+    return this.companyService.getById(user, companyId);
   }
 
   @Patch('/:company_id')
