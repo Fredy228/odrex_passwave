@@ -9,6 +9,7 @@ import Search from "@/components/reused/search/Search";
 import { CompanyInterface } from "@/interface/company.interface";
 import { getCompanyById } from "@/api/company.api";
 import { outputError } from "@/services/output-error";
+import Box from "@mui/material/Box";
 
 const CompanyScreen: FC = () => {
   const setNavMap = useActionStore((state) => state.setNavMap);
@@ -37,7 +38,7 @@ const CompanyScreen: FC = () => {
   return (
     <main>
       <ContainerCustom>
-        <div>
+        <Box>
           <Stack
             direction={matches ? "row" : "column"}
             alignItems="center"
@@ -55,7 +56,7 @@ const CompanyScreen: FC = () => {
           </Stack>
 
           <Hall parentCompany={company} />
-        </div>
+        </Box>
       </ContainerCustom>
     </main>
   );

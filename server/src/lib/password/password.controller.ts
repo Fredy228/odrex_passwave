@@ -98,12 +98,13 @@ export class PasswordController {
     type: Password,
   })
   @HttpCode(200)
-  @Roles(RoleEnum.ADMIN)
+  @Roles()
   async getById(
+    @Req() { user }: ReqProtectedType,
     @Param('device_id', new JoiPipe(Joi.number().integer().required()))
     deviceId: number,
   ) {
-    return this.passwordService.getById(deviceId);
+    return this.passwordService.getById(user, deviceId);
   }
 
   @Patch('/:pass_id')

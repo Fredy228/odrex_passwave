@@ -61,7 +61,7 @@ function App() {
         <Route
           path={"/users/:userId"}
           element={
-            <PrivateRoute access={[RoleEnum.ADMIN]}>
+            <PrivateRoute>
               <UserByIdScreen />
             </PrivateRoute>
           }

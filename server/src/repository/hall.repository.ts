@@ -15,11 +15,11 @@ export class HallRepository extends Repository<Hall> {
   async getByPrivilege(
     { range, sort, filter }: QuerySearchDto,
     companyId: number,
-    privileges?: Privilege[],
+    where?: Record<string, any>,
   ) {
     const [halls, total] = await this.findAndCount({
       where: {
-        id: privileges && In(privileges.map((i) => i.hallId)),
+        ...where,
         company: {
           id: companyId,
         },

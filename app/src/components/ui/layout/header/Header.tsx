@@ -7,11 +7,13 @@ import {
   MenuItem,
   Toolbar,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { remove } from "local-storage";
+import MenuIcon from "@mui/icons-material/Menu";
 
 import ContainerCustom from "@/components/reused/container/Container";
 import {
@@ -30,6 +32,7 @@ const Header: FC = () => {
   const clearUser = useUserStore((state) => state.clearUser);
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const isMoreMobile = useMediaQuery("(min-width:768px)");
 
   const navigate = useNavigate();
 
@@ -60,7 +63,14 @@ const Header: FC = () => {
     <AppBar id={"app-bar"} position="static" color={"secondary"}>
       <ContainerCustom>
         <Toolbar disableGutters>
-          <LogoCustom />
+          {!isMoreMobile && user?.role === RoleEnum.ADMIN && (
+            <IconButton onClick={handleOpenNavMenu} sx={{ color: "#fff" }}>
+              <MenuIcon color={"inherit"} />
+            </IconButton>
+          )}
+
+          {isMoreMobile && <LogoCustom />}
+
           <Typography
             variant="h6"
             noWrap
@@ -76,14 +86,38 @@ const Header: FC = () => {
             PassWave
           </Typography>
 
-          <ListMenu>
-            {user?.role === RoleEnum.ADMIN && (
-              <>
-                <ItemLink to={"/users"}>Users</ItemLink>
-                <ItemLink to={"/groups"}>Groups</ItemLink>
-              </>
-            )}
-          </ListMenu>
+          <Menu
+            anchorEl={anchorElNav}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            open={Boolean(anchorElNav)}
+            onClose={() => setAnchorElNav(null)}
+          >
+            <MenuItem onClick={() => navigate(`/users`)}>
+              <Typography>Users</Typography>
+            </MenuItem>
+            <MenuItem onClick={() => navigate(`/groups`)}>
+              <Typography>Groups</Typography>
+            </MenuItem>
+          </Menu>
+
+          {isMoreMobile && (
+            <ListMenu>
+              {user?.role === RoleEnum.ADMIN && (
+                <>
+                  <ItemLink to={"/users"}>Users</ItemLink>
+                  <ItemLink to={"/groups"}>Groups</ItemLink>
+                </>
+              )}
+            </ListMenu>
+          )}
 
           <Box
             display={"flex"}

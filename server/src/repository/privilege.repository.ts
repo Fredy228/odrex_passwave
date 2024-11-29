@@ -28,19 +28,17 @@ export class PrivilegeRepository extends Repository<Privilege> {
   async checkIsEditPass(user: User, passId: number) {
     if (user.role === RoleEnum.ADMIN) return;
 
-    const privilege = await this.findOne({
-      where: {
-        group: {
-          groups_users: {
-            userId: user.id,
-          },
-        },
-        password: {
-          id: passId,
+    const groupUser = await this.groupUserRepository.findOneBy({
+      userId: user.id,
+      group: {
+        privileges: {
+          access: Permit.EDIT,
+          passwordId: passId,
         },
       },
     });
-    if (privilege?.access === Permit.EDIT) return;
+
+    if (groupUser) return;
 
     throw new CustomException(
       HttpStatus.FORBIDDEN,

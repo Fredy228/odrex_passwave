@@ -3,7 +3,6 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { Password } from '../entity/password.entity';
 import { CustomException } from '../services/custom-exception';
-import { Privilege } from '../entity/privilege.entity';
 import { QuerySearchDto } from '../dto/query-search.dto';
 
 @Injectable()
@@ -15,11 +14,11 @@ export class PasswordRepository extends Repository<Password> {
   async getByPrivilege(
     { range, sort, filter }: QuerySearchDto,
     deviceId: number,
-    privileges?: Privilege[],
+    where?: Record<string, any>,
   ) {
     const [passwords, total] = await this.findAndCount({
       where: {
-        privileges,
+        ...where,
         device: {
           id: deviceId,
         },
@@ -33,6 +32,9 @@ export class PasswordRepository extends Repository<Password> {
       },
       take: range[1] - range[0] + 1,
       skip: range[0] - 1,
+      relations: {
+        privileges: where && true,
+      },
     });
 
     return { data: passwords, total };

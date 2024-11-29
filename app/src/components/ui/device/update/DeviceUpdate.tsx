@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  useMediaQuery,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
@@ -37,6 +38,7 @@ const DeviceUpdate: FC<Props> = ({ close, refresh, id, list }) => {
       label: null,
     },
   ]);
+  const isMoreMobile = useMediaQuery("(min-width:768px)");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorFields, setErrorFields] = useState<Array<number | string>>([]);
@@ -146,7 +148,7 @@ const DeviceUpdate: FC<Props> = ({ close, refresh, id, list }) => {
   }, [id, list]);
 
   return (
-    <Dialog open={Boolean(id)} onClose={close}>
+    <Dialog open={Boolean(id)} onClose={close} fullWidth={!isMoreMobile}>
       <DialogTitle textAlign={"center"}>Update new device</DialogTitle>
       <DialogContent>
         <FormCustom onSubmit={handleUpdate}>

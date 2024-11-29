@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  useMediaQuery,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
@@ -23,6 +24,7 @@ type Props = {
 const CompanyCreate: FC<Props> = ({ close, refresh, isShow }) => {
   const [name, setName] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
+  const isMoreMobile = useMediaQuery("(min-width:768px)");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorFields, setErrorFields] = useState<Array<number | string>>([]);
@@ -60,7 +62,7 @@ const CompanyCreate: FC<Props> = ({ close, refresh, isShow }) => {
   };
 
   return (
-    <Dialog open={isShow} onClose={close}>
+    <Dialog open={isShow} onClose={close} fullWidth={!isMoreMobile}>
       <DialogTitle textAlign={"center"}>Create new company</DialogTitle>
       <DialogContent>
         <FormCustom onSubmit={handleCreate}>

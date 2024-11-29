@@ -13,6 +13,7 @@ import GroupCreate from "@/components/ui/groups/create/GroupCreate";
 import ModalConfirm from "@/components/reused/modal/ModalConfirm";
 import GroupUpdate from "@/components/ui/groups/update/GroupUpdate";
 import GroupsUsers from "@/components/ui/groups/users/GroupsUsers";
+import { useMediaQuery } from "@mui/material";
 
 const Groups: FC = () => {
   const {

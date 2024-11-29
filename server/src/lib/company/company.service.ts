@@ -12,6 +12,7 @@ import { Privilege } from '../../entity/privilege.entity';
 import { EPrivilegeList } from '../../enums/privilege.enum';
 import { CustomException } from '../../services/custom-exception';
 import { GroupUserRepository } from '../../repository/group-user.repository';
+import { In, IsNull, Not } from 'typeorm';
 
 @Injectable()
 export class CompanyService {
@@ -61,14 +62,21 @@ export class CompanyService {
     user: User,
     { sort = ['id', 'DESC'], range = [1, 15], filter = {} }: QuerySearchDto,
   ): Promise<{ data: Company[]; total: number }> {
-    const privileges: Privilege[] | undefined =
-      user.role === RoleEnum.ADMIN
-        ? undefined
-        : await this.privilegeRepository.getByUser(
-            user,
-            EPrivilegeList.COMPANY,
-          );
-    if (privileges?.length === 0) return { data: [], total: 0 };
+    let where = undefined;
+    if (user.role !== RoleEnum.ADMIN) {
+      const groupUsers = await this.groupUserRepository.findBy({
+        userId: user.id,
+      });
+      const privileges = await this.privilegeRepository.findBy({
+        companyId: Not(IsNull()),
+        group: {
+          id: In(groupUsers.map((i) => i.groupId)),
+        },
+      });
+      where = {
+        id: In(privileges.map((i) => i.companyId)),
+      };
+    }
 
     return await this.companyRepository.getByPrivilege(
       {
@@ -76,7 +84,7 @@ export class CompanyService {
         filter,
         range,
       },
-      privileges,
+      where,
     );
   }
 

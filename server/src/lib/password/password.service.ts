@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { EntityManager, In } from 'typeorm';
 import { join } from 'path';
 
 import { PasswordRepository } from '../../repository/password.repository';
@@ -10,12 +10,11 @@ import { FileService } from '../../services/file/file.service';
 import { Password } from '../../entity/password.entity';
 import { QuerySearchDto } from '../../dto/query-search.dto';
 import { User } from '../../entity/user.entity';
-import { Privilege } from '../../entity/privilege.entity';
 import { RoleEnum } from '../../enums/role.enum';
 import { PrivilegeRepository } from '../../repository/privilege.repository';
 import { PasswordUpdateDto } from './dto/password.update.dto';
 import { CustomException } from '../../services/custom-exception';
-import { EPrivilegeList } from '../../enums/privilege.enum';
+import { GroupUserRepository } from '../../repository/group-user.repository';
 
 @Injectable()
 export class PasswordService {
@@ -25,6 +24,7 @@ export class PasswordService {
     private readonly privilegeRepository: PrivilegeRepository,
     private readonly cryptoDataService: CryptoDataService,
     private readonly fileService: FileService,
+    private readonly groupUserRepository: GroupUserRepository,
     private readonly entityManager: EntityManager,
   ) {}
 
@@ -64,7 +64,20 @@ export class PasswordService {
     return newPassword;
   }
 
-  async getById(passId: number): Promise<Password> {
+  async getById(user: User, passId: number): Promise<Password> {
+    if (user.role !== RoleEnum.ADMIN) {
+      const groupUser = await this.groupUserRepository.findOneBy({
+        userId: user.id,
+        group: {
+          privileges: {
+            passwordId: passId,
+          },
+        },
+      });
+      if (!groupUser)
+        throw new CustomException(HttpStatus.FORBIDDEN, `Not access`);
+    }
+
     const res = await this.passwordRepository.getById(passId);
     if (res.password)
       res.password = this.cryptoDataService.decryptionData(res.password);
@@ -76,19 +89,24 @@ export class PasswordService {
     user: User,
     { sort = ['id', 'DESC'], range = [1, 15], filter = {} }: QuerySearchDto,
   ) {
-    const privileges: Privilege[] | undefined =
-      user.role === RoleEnum.ADMIN
-        ? undefined
-        : await this.privilegeRepository.getByUser(
-            user,
-            EPrivilegeList.PASSWORD,
-          );
-    if (privileges?.length === 0) return [];
+    let where = undefined;
+    if (user.role !== RoleEnum.ADMIN) {
+      const groupUser = await this.groupUserRepository.findBy({
+        userId: user.id,
+      });
+      where = {
+        privileges: {
+          group: {
+            id: In(groupUser.map((i) => i.groupId)),
+          },
+        },
+      };
+    }
 
     const res = await this.passwordRepository.getByPrivilege(
       { sort, filter, range },
       deviceId,
-      privileges,
+      where,
     );
 
     res.data = res.data.map((i) => {

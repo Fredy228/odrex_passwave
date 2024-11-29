@@ -7,6 +7,7 @@ import { outputError } from "@/services/output-error";
 import { HallInterface } from "@/interface/hall.interface";
 import { getHallById } from "@/api/hall.api";
 import { Typography } from "@mui/material";
+import Box from "@mui/material/Box";
 
 const HallsScreen: FC = () => {
   const setNavMap = useActionStore((state) => state.setNavMap);
@@ -38,10 +39,10 @@ const HallsScreen: FC = () => {
   return (
     <main>
       <ContainerCustom>
-        <div>
+        <Box>
           <Typography variant={"h5"}>{hall?.name}</Typography>
           <Device parentHall={hall} />
-        </div>
+        </Box>
       </ContainerCustom>
     </main>
   );

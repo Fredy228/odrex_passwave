@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  useMediaQuery,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
@@ -43,6 +44,7 @@ const PassUpdate: FC<Props> = ({ close, refresh, id }) => {
   const [originalPass, setOriginalPass] = useState<PasswordInterface | null>(
     null,
   );
+  const isMoreMobile = useMediaQuery("(min-width:768px)");
 
   const handleUpdate = async (event?: React.FormEvent<HTMLFormElement>) => {
     if (event) event.preventDefault();
@@ -131,7 +133,7 @@ const PassUpdate: FC<Props> = ({ close, refresh, id }) => {
   }, [id]);
 
   return (
-    <Dialog open={Boolean(id)} onClose={close}>
+    <Dialog open={Boolean(id)} onClose={close} fullWidth={!isMoreMobile}>
       <DialogTitle textAlign={"center"}>Update new pass</DialogTitle>
       <DialogContent>
         <FormCustom onSubmit={handleUpdate}>

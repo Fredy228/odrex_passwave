@@ -6,4 +6,8 @@ export const FormCustom = styled.form`
   gap: 15px;
   padding: 10px 0;
   width: 320px;
+
+  @media (width < 768px) {
+    width: 100%;
+  }
 `;

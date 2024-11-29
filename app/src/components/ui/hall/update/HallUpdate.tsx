@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  useMediaQuery,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
@@ -25,6 +26,7 @@ type Props = {
 const HallUpdate: FC<Props> = ({ close, refresh, id }) => {
   const [name, setName] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
+  const isMoreMobile = useMediaQuery("(min-width:768px)");
 
   const [originalCompany, setOriginalCompany] = useState<HallInterface | null>(
     null,
@@ -91,7 +93,7 @@ const HallUpdate: FC<Props> = ({ close, refresh, id }) => {
   }, [id]);
 
   return (
-    <Dialog open={Boolean(id)} onClose={close}>
+    <Dialog open={Boolean(id)} onClose={close} fullWidth={!isMoreMobile}>
       <DialogTitle textAlign={"center"}>Update hall</DialogTitle>
       <DialogContent>
         <FormCustom onSubmit={handleUpdate}>

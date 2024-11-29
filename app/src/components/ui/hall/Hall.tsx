@@ -23,7 +23,7 @@ import useUserStore from "@/global-state/user.store";
 import { HallInterface } from "@/interface/hall.interface";
 import usePagination from "@/hooks/use-pagination";
 import { scrollToTop } from "@/services/scroll-to-top";
-import { getAllHalls } from "@/api/hall.api";
+import { deleteHallById, getAllHalls } from "@/api/hall.api";
 import { outputError } from "@/services/output-error";
 import { RoleEnum } from "@/enum/role.enum";
 import {
@@ -31,12 +31,12 @@ import {
   ButtonCreate,
 } from "@/components/reused/button/button-create.styled";
 import HallCreate from "@/components/ui/hall/create/HallCreate";
-import HallDelete from "@/components/ui/hall/delete/HallDelete";
 import HallUpdate from "@/components/ui/hall/update/HallUpdate";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { CompanyInterface } from "@/interface/company.interface";
 import Privileges from "@/components/ui/privileges/Privileges";
 import { EPrivilegeList } from "@/enum/privilege.enum";
+import ModalConfirm from "@/components/reused/modal/ModalConfirm";
 
 type Props = {
   parentCompany: CompanyInterface | null;
@@ -105,10 +105,12 @@ const Hall: FC<Props> = ({ parentCompany }) => {
         close={() => setUpdateHall(null)}
         refresh={() => setRefresh((prev) => !prev)}
       />
-      <HallDelete
-        close={() => setDeleteHall(null)}
-        refresh={() => setRefresh((prev) => !prev)}
+      <ModalConfirm
         id={deleteHall}
+        close={() => setDeleteHall(null)}
+        text={"Are you sure you want to delete the hall?"}
+        refresh={() => setRefresh((prev) => !prev)}
+        fetchApi={deleteHallById}
       />
       {user?.role === RoleEnum.ADMIN && (
         <>

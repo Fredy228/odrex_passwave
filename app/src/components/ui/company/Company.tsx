@@ -12,10 +12,10 @@ import {
 import BusinessIcon from "@mui/icons-material/Business";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import SettingsIcon from "@mui/icons-material/Settings";
+import Box from "@mui/material/Box";
 
 import usePagination from "@/hooks/use-pagination";
-import { getAllCompanies } from "@/api/company.api";
+import { deleteCompanyById, getAllCompanies } from "@/api/company.api";
 import { outputError } from "@/services/output-error";
 import { CompanyInterface } from "@/interface/company.interface";
 import useUserStore from "@/global-state/user.store";
@@ -28,9 +28,8 @@ import {
   List,
 } from "@/components/reused/plate-list/plate-item.styled";
 import { scrollToTop } from "@/services/scroll-to-top";
-import Box from "@mui/material/Box";
-import CompanyDelete from "@/components/ui/company/delete/CompanyDelete";
 import CompanyUpdate from "@/components/ui/company/update/CompanyUpdate";
+import ModalConfirm from "@/components/reused/modal/ModalConfirm";
 
 const Company: FC = () => {
   const user = useUserStore((state) => state.user);
@@ -54,6 +53,10 @@ const Company: FC = () => {
   const handleSetPage = (_event: React.ChangeEvent<unknown>, value: number) => {
     setQuery([{ field: "page", value: String(value) }]);
     scrollToTop();
+  };
+
+  const handleRefresh = () => {
+    setRefresh((prevState) => !prevState);
   };
 
   useEffect(() => {
@@ -86,10 +89,12 @@ const Company: FC = () => {
         close={() => setUpdateCompany(null)}
         refresh={() => setRefresh((prev) => !prev)}
       />
-      <CompanyDelete
+      <ModalConfirm
         id={deleteCompany}
         close={() => setDeleteCompany(null)}
-        refresh={() => setRefresh((prev) => !prev)}
+        text={"Are you sure you want to delete the company?"}
+        refresh={handleRefresh}
+        fetchApi={deleteCompanyById}
       />
       {user?.role === RoleEnum.ADMIN && (
         <ButtonCreate onClick={() => setIsShowModalCreate(true)}>

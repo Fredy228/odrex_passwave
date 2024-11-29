@@ -1,10 +1,4 @@
-import React, {
-  type FC,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { type FC, useMemo, useState } from "react";
 import { Options, Edge, Node } from "vis-network/standalone/esm/vis-network";
 import { Paper } from "@mui/material";
 
@@ -12,8 +6,9 @@ import { DeviceInterface } from "@/interface/device.interface";
 import useVisNetwork from "@/components/ui/device/schema/useVisNetwork";
 import deviceListIcons from "@/components/ui/device/list-icons";
 import DeviceOpen from "@/components/ui/device/open/DeviceOpen";
-import DeviceDelete from "@/components/ui/device/delete/DeviceDelete";
 import DeviceUpdate from "@/components/ui/device/update/DeviceUpdate";
+import ModalConfirm from "@/components/reused/modal/ModalConfirm";
+import { deleteDeviceById } from "@/api/device.api";
 
 const options: Options = {
   nodes: {
@@ -96,10 +91,12 @@ const DeviceSchema: FC<Props> = ({ devices, refresh }) => {
         list={devices}
         refresh={refresh}
       />
-      <DeviceDelete
-        close={() => setDeviceDelete(null)}
-        refresh={refresh}
+      <ModalConfirm
         id={deviceDelete}
+        close={() => setDeviceDelete(null)}
+        text={"Are you sure you want to delete the device?"}
+        refresh={refresh}
+        fetchApi={deleteDeviceById}
       />
       <DeviceOpen
         device={devices.find((item) => item.id === selectedNode) || null}

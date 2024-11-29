@@ -10,6 +10,7 @@ import {
   MenuItem,
   Select,
   TextField,
+  useMediaQuery,
 } from "@mui/material";
 import { RoleEnum } from "@/enum/role.enum";
 import { LoadingButton } from "@mui/lab";
@@ -30,6 +31,7 @@ const UserCreate: FC<Props> = ({ isShow, close, refresh }) => {
   const [password, setPassword] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [role, setRole] = useState<RoleEnum>(RoleEnum.USER);
+  const isMoreMobile = useMediaQuery("(min-width:768px)");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorFields, setErrorFields] = useState<Array<number | string>>([]);
@@ -71,7 +73,7 @@ const UserCreate: FC<Props> = ({ isShow, close, refresh }) => {
   };
 
   return (
-    <Dialog open={isShow} onClose={close}>
+    <Dialog open={isShow} onClose={close} fullWidth={!isMoreMobile}>
       <DialogTitle textAlign={"center"}>Create new user</DialogTitle>
       <DialogContent>
         <FormCustom>

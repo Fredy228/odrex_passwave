@@ -13,6 +13,7 @@ import { HallUpdateDto } from './dto/hall.update.dto';
 import { Privilege } from '../../entity/privilege.entity';
 import { EPrivilegeList } from '../../enums/privilege.enum';
 import { GroupUserRepository } from '../../repository/group-user.repository';
+import { In, IsNull, Not } from 'typeorm';
 
 @Injectable()
 export class HallService {
@@ -48,11 +49,21 @@ export class HallService {
     { sort = ['id', 'DESC'], range = [1, 15], filter = {} }: QuerySearchDto,
     companyId: number,
   ): Promise<{ data: Hall[]; total: number }> {
-    const privileges: Privilege[] | undefined =
-      user.role === RoleEnum.ADMIN
-        ? undefined
-        : await this.privilegeRepository.getByUser(user, EPrivilegeList.HALL);
-    if (privileges?.length === 0) return { data: [], total: 0 };
+    let where = undefined;
+    if (user.role !== RoleEnum.ADMIN) {
+      const groupUsers = await this.groupUserRepository.findBy({
+        userId: user.id,
+      });
+      const privileges = await this.privilegeRepository.findBy({
+        hallId: Not(IsNull()),
+        group: {
+          id: In(groupUsers.map((i) => i.groupId)),
+        },
+      });
+      where = {
+        id: In(privileges.map((i) => i.hallId)),
+      };
+    }
 
     return await this.hallRepository.getByPrivilege(
       {
@@ -61,7 +72,7 @@ export class HallService {
         range,
       },
       companyId,
-      privileges,
+      where,
     );
   }
 

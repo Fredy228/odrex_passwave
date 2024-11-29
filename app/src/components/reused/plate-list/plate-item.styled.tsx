@@ -6,7 +6,14 @@ export const List = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  margin-top: 20px;
+  margin: 20px 0;
+
+  @media (width < 1025px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (width < 768px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
 `;
 
 export const Item = styled(Paper)`

@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { DataSource, ILike, In, Repository } from 'typeorm';
+import { DataSource, ILike, In, IsNull, Not, Repository } from 'typeorm';
 
 import { Company } from '../entity/company.entity';
 import { Privilege } from '../entity/privilege.entity';
@@ -14,11 +14,11 @@ export class CompanyRepository extends Repository<Company> {
 
   async getByPrivilege(
     { range, sort, filter }: QuerySearchDto,
-    privileges?: Privilege[],
+    where?: Record<string, any>,
   ) {
     const [companies, total] = await this.findAndCount({
       where: {
-        id: privileges && In(privileges.map((i) => i.companyId)),
+        ...where,
         name: filter.name && ILike('%' + filter.name + '%'),
       },
       order: {

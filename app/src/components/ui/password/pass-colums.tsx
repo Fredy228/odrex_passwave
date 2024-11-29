@@ -11,8 +11,13 @@ import SettingsIcon from "@mui/icons-material/Settings";
 
 import { BoxCenter } from "@/components/ui/users/users.styled";
 import { PasswordInterface } from "@/interface/password.interface";
+import useUserStore from "@/global-state/user.store";
+import { RoleEnum } from "@/enum/role.enum";
+import { Permit } from "@/enum/privilege.enum";
+import { PrivilegeInterface } from "@/interface/privilege.interface";
 
 const usePassColumns = () => {
+  const user = useUserStore((state) => state.user);
   const [deletePass, setDeletePass] = useState<number | null>(null);
   const [editPass, setEditPass] = useState<number | null>(null);
   const [privilegeShow, setPrivilegeShow] = useState<PasswordInterface | null>(
@@ -25,39 +30,39 @@ const usePassColumns = () => {
     else toast.error("Password didn't copied to clipboard");
   };
 
-  const columns: GridColDef[] = [
+  let columns: GridColDef[] = [
     {
       field: "name",
       headerName: "Name",
-      width: 180,
+      width: 160,
       sortable: false,
       editable: false,
     },
     {
       field: "entry",
       headerName: "Entry",
-      width: 180,
+      width: 160,
       editable: false,
       sortable: false,
     },
     {
       field: "address",
       headerName: "Address",
-      width: 200,
+      width: 180,
       editable: false,
       sortable: false,
     },
     {
       field: "access",
       headerName: "Access",
-      width: 180,
+      width: 160,
       editable: false,
       sortable: false,
     },
     {
       field: "login",
       headerName: "Login",
-      width: 180,
+      width: 160,
       editable: false,
       sortable: false,
     },
@@ -109,24 +114,6 @@ const usePassColumns = () => {
       },
     },
     {
-      field: "privilege",
-      headerName: "Privilege",
-      sortable: false,
-      editable: false,
-      width: 40,
-      type: "actions",
-      renderCell: (params: GridCellParams) => (
-        <BoxCenter>
-          <IconButton
-            type={"button"}
-            onClick={() => setPrivilegeShow(params.row)}
-          >
-            <SettingsIcon />
-          </IconButton>
-        </BoxCenter>
-      ),
-    },
-    {
       field: "edit",
       headerName: "Edit",
       sortable: false,
@@ -135,34 +122,62 @@ const usePassColumns = () => {
       type: "actions",
       renderCell: (params: GridCellParams) => (
         <BoxCenter>
-          <IconButton
-            type={"button"}
-            onClick={() => setEditPass(params.row.id)}
-          >
-            <EditIcon />
-          </IconButton>
-        </BoxCenter>
-      ),
-    },
-    {
-      field: "del",
-      headerName: "Del",
-      sortable: false,
-      editable: false,
-      width: 40,
-      type: "actions",
-      renderCell: (params: GridCellParams) => (
-        <BoxCenter>
-          <IconButton
-            type={"button"}
-            onClick={() => setDeletePass(params.row.id)}
-          >
-            <DeleteIcon />
-          </IconButton>
+          {((params.row?.privileges &&
+            params.row?.privileges.some(
+              (p: PrivilegeInterface) => p.access === Permit.EDIT,
+            )) ||
+            user?.role === RoleEnum.ADMIN) && (
+            <IconButton
+              type={"button"}
+              onClick={() => setEditPass(params.row.id)}
+            >
+              <EditIcon />
+            </IconButton>
+          )}
         </BoxCenter>
       ),
     },
   ];
+
+  if (user?.role === RoleEnum.ADMIN)
+    columns.push(
+      {
+        field: "privilege",
+        headerName: "Privilege",
+        sortable: false,
+        editable: false,
+        width: 40,
+        type: "actions",
+        renderCell: (params: GridCellParams) => (
+          <BoxCenter>
+            <IconButton
+              type={"button"}
+              onClick={() => setPrivilegeShow(params.row)}
+            >
+              <SettingsIcon />
+            </IconButton>
+          </BoxCenter>
+        ),
+      },
+      {
+        field: "del",
+        headerName: "Del",
+        sortable: false,
+        editable: false,
+        width: 40,
+        type: "actions",
+        renderCell: (params: GridCellParams) => (
+          <BoxCenter>
+            <IconButton
+              type={"button"}
+              onClick={() => setDeletePass(params.row.id)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </BoxCenter>
+        ),
+      },
+    );
 
   return {
     columns,

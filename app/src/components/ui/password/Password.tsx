@@ -1,5 +1,5 @@
 import React, { type FC, useEffect, useRef, useState } from "react";
-import { Button, Stack } from "@mui/material";
+import { Button, Stack, useMediaQuery } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
 import usePagination from "@/hooks/use-pagination";
@@ -14,6 +14,8 @@ import PasswordMore from "@/components/ui/password/more/PasswordMore";
 import PassUpdate from "@/components/ui/password/update/PassUpdate";
 import { EPrivilegeList } from "@/enum/privilege.enum";
 import Privileges from "@/components/ui/privileges/Privileges";
+import useUserStore from "@/global-state/user.store";
+import { RoleEnum } from "@/enum/role.enum";
 
 type Props = {
   id: number | null;
@@ -32,6 +34,9 @@ const Password: FC<Props> = ({ id }) => {
   } = usePassColumns();
   const [list, setList] = useState<PasswordInterface[]>([]);
   const [total, setTotal] = useState<number>(0);
+
+  const user = useUserStore((state) => state.user);
+  const isMoreMobile = useMediaQuery("(min-width:768px)");
 
   const { pageSize, setQuery, queryGet } = usePagination();
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -91,13 +96,20 @@ const Password: FC<Props> = ({ id }) => {
         close={() => setIsShowMore(null)}
         password={list.find((i) => i.id === isShowMore)}
       />
-      <Stack direction={"row"} spacing={2} justifyContent={"space-between"}>
-        <Button
-          variant={"contained"}
-          onClick={() => setIsShowModalCreate(true)}
-        >
-          Create
-        </Button>
+      <Stack
+        direction={isMoreMobile ? "row" : "column"}
+        spacing={2}
+        justifyContent={"space-between"}
+      >
+        {user?.role === RoleEnum.ADMIN && (
+          <Button
+            variant={"contained"}
+            onClick={() => setIsShowModalCreate(true)}
+          >
+            Create
+          </Button>
+        )}
+
         <Search
           fields={[
             {

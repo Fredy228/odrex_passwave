@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  useMediaQuery,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
@@ -35,6 +36,7 @@ const PassCreate: FC<Props> = ({ close, refresh, isShow, id }) => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorFields, setErrorFields] = useState<Array<number | string>>([]);
+  const isMoreMobile = useMediaQuery("(min-width:768px)");
 
   const handleCreate = async (event?: React.FormEvent<HTMLFormElement>) => {
     if (event) event.preventDefault();
@@ -83,7 +85,7 @@ const PassCreate: FC<Props> = ({ close, refresh, isShow, id }) => {
   };
 
   return (
-    <Dialog open={isShow} onClose={close}>
+    <Dialog open={isShow} onClose={close} fullWidth={!isMoreMobile}>
       <DialogTitle textAlign={"center"}>Create new pass</DialogTitle>
       <DialogContent>
         <FormCustom onSubmit={handleCreate}>

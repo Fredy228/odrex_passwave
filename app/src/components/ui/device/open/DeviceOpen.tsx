@@ -1,4 +1,4 @@
-import React, { type FC, useEffect, useState } from "react";
+import React, { type FC } from "react";
 import {
   Button,
   Dialog,
@@ -11,6 +11,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 import { DeviceInterface } from "@/interface/device.interface";
 import Password from "@/components/ui/password/Password";
+import useUserStore from "@/global-state/user.store";
+import { RoleEnum } from "@/enum/role.enum";
 
 type Props = {
   device: DeviceInterface | null;
@@ -19,6 +21,8 @@ type Props = {
   openEdit: () => void;
 };
 const DeviceOpen: FC<Props> = ({ device, close, openDelete, openEdit }) => {
+  const user = useUserStore((state) => state.user);
+
   return (
     <Dialog open={Boolean(device?.id)} onClose={close} fullScreen>
       <DialogTitle textAlign={"center"}>
@@ -26,20 +30,25 @@ const DeviceOpen: FC<Props> = ({ device, close, openDelete, openEdit }) => {
       </DialogTitle>
       <DialogContent>{device?.id && <Password id={device.id} />}</DialogContent>
       <DialogActions>
-        <Button
-          type={"button"}
-          startIcon={<DeleteIcon />}
-          onClick={() => openDelete()}
-        >
-          Delete
-        </Button>
-        <Button
-          type={"button"}
-          startIcon={<EditIcon />}
-          onClick={() => openEdit()}
-        >
-          Edit
-        </Button>
+        {user?.role === RoleEnum.ADMIN && (
+          <>
+            <Button
+              type={"button"}
+              startIcon={<DeleteIcon />}
+              onClick={() => openDelete()}
+            >
+              Delete
+            </Button>
+            <Button
+              type={"button"}
+              startIcon={<EditIcon />}
+              onClick={() => openEdit()}
+            >
+              Edit
+            </Button>
+          </>
+        )}
+
         <Button type={"button"} onClick={close}>
           Close
         </Button>

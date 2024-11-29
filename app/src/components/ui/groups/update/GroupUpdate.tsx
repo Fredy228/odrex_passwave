@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  useMediaQuery,
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { LoadingButton } from "@mui/lab";
@@ -23,6 +24,7 @@ type Props = {
 };
 const GroupUpdate: FC<Props> = ({ group, close, refresh }) => {
   const [name, setName] = useState<string>("");
+  const isMoreMobile = useMediaQuery("(min-width:768px)");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorFields, setErrorFields] = useState<Array<number | string>>([]);
@@ -75,7 +77,7 @@ const GroupUpdate: FC<Props> = ({ group, close, refresh }) => {
   }, [group]);
 
   return (
-    <Dialog open={Boolean(group)} onClose={close}>
+    <Dialog open={Boolean(group)} onClose={close} fullWidth={!isMoreMobile}>
       <DialogTitle textAlign={"center"}>Update new group</DialogTitle>
       <DialogContent>
         <FormCustom onSubmit={handleUpdate}>

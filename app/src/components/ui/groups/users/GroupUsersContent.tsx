@@ -1,6 +1,12 @@
 import { ChangeEvent, type FC, useEffect, useRef, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, FormControlLabel, Stack, Switch } from "@mui/material";
+import {
+  Button,
+  FormControlLabel,
+  Stack,
+  Switch,
+  useMediaQuery,
+} from "@mui/material";
 
 import { GroupInterface } from "@/interface/group.interface";
 import { UserInterface } from "@/interface/user.interface";
@@ -22,6 +28,7 @@ const GroupUsersContent: FC<Props> = ({ group }) => {
     refresh: () => setRefresh((prev) => !prev),
   });
   const { pageSize, setQuery, queryGet } = usePagination();
+  const isMoreMobile = useMediaQuery("(min-width:768px)");
 
   const [listUser, setListUser] = useState<UserInterface[]>([]);
   const [total, setTotal] = useState<number>(0);
@@ -59,7 +66,11 @@ const GroupUsersContent: FC<Props> = ({ group }) => {
 
   return (
     <>
-      <Stack direction={"row"} spacing={2} justifyContent={"space-between"}>
+      <Stack
+        direction={isMoreMobile ? "row" : "column"}
+        spacing={2}
+        justifyContent={"space-between"}
+      >
         <Button variant={"contained"} onClick={() => setIsOnlyGroup(false)}>
           Add mode
         </Button>
