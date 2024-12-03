@@ -75,7 +75,6 @@ const Hall: FC<Props> = ({ parentCompany }) => {
 
     getAllHalls(queryGet, Number(companyId))
       .then((data) => {
-        console.log("data", data);
         setTotal(data.total);
         setListHall(data.data);
       })
@@ -84,7 +83,7 @@ const Hall: FC<Props> = ({ parentCompany }) => {
         setIsLoading(false);
         isFetching.current = false;
       });
-  }, [refresh, companyId, queryGet]);
+  }, [refresh, companyId, queryGet, isShowSettings]);
 
   return (
     <>

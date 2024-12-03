@@ -12,20 +12,21 @@ import { User } from '../../entity/user.entity';
 import { UserDevices } from '../../entity/user-devices.entity';
 import { LoginAuthDto } from './dto/login.dto';
 import { PassUpdateDto } from './dto/pass-update.dto';
+import { TryLoginRepository } from '../../repository/try-login.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersRepository: UserRepository,
     private devicesRepository: UserDevicesRepository,
+    private tryLoginRepository: TryLoginRepository,
     private jwtService: JwtService,
   ) {}
 
-  async signInCredentials({
-    email,
-    password,
-    userAgent,
-  }: LoginAuthDto & { userAgent: Details }): Promise<User & TokenType> {
+  async signInCredentials(
+    { email, password, userAgent }: LoginAuthDto & { userAgent: Details },
+    ip: string,
+  ): Promise<User & TokenType> {
     const user = await this.usersRepository.findOne({
       where: { email },
       relations: {
@@ -33,17 +34,35 @@ export class AuthService {
       },
     });
 
-    if (!user)
+    await this.tryLoginRepository.checkBlock({
+      ipAddress: ip,
+      isEmailTrue: Boolean(user),
+    });
+
+    const deviceModel = `${userAgent.platform} ${userAgent.os} ${userAgent.browser}`;
+
+    if (!user) {
+      await this.tryLoginRepository.createAndSave({
+        email,
+        isEmailTrue: false,
+        deviceModel,
+        ipAddress: ip,
+      });
       throw new CustomException(
         HttpStatus.UNAUTHORIZED,
         `Username or password is wrong`,
       );
-
-    const deviceModel = `${userAgent.platform} ${userAgent.os} ${userAgent.browser}`;
+    }
 
     const isValidPass = await checkPassword(password, user.password);
 
     if (!isValidPass) {
+      await this.tryLoginRepository.createAndSave({
+        email,
+        isEmailTrue: true,
+        deviceModel,
+        ipAddress: ip,
+      });
       throw new CustomException(
         HttpStatus.UNAUTHORIZED,
         `Username or password is wrong`,
@@ -51,6 +70,9 @@ export class AuthService {
     }
 
     await this.deleteOldSession(user.devices);
+    await this.tryLoginRepository.deleteWhere({
+      ipAddress: ip,
+    });
 
     const tokens = await this.addDeviceAuth(deviceModel, user);
 
@@ -86,6 +108,7 @@ export class AuthService {
 
   async changePassword(
     user: User,
+    currentDevice: UserDevices,
     { currentPass, newPass }: PassUpdateDto,
   ): Promise<void> {
     const userWithPass = await this.usersRepository.findOne({
@@ -109,6 +132,14 @@ export class AuthService {
     await this.usersRepository.update(userWithPass.id, {
       password: await hashPassword(newPass),
     });
+    const session = await this.devicesRepository.findBy({
+      user: {
+        id: user.id,
+      },
+    });
+    await this.devicesRepository.delete(
+      session.filter((i) => i.id !== currentDevice.id).map((i) => i.id),
+    );
   }
 
   async deleteOldSession(devices: UserDevices[]) {

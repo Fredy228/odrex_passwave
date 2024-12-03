@@ -1,0 +1,7 @@
+.git
+node_modules
+database
+static
+dist
+build
+public

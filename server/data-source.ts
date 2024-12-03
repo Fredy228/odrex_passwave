@@ -14,7 +14,7 @@ const AppDataSource = new DataSource({
   entities: [__dirname + '/src/entity/*{.ts,.js}'],
   synchronize: false,
   logging: ['error', 'warn'],
-  migrationsRun: true,
+  migrationsRun: false,
   migrationsTableName: 'migrations',
   migrations: [__dirname + '/src/migrations/*{.ts,.js}'],
 });

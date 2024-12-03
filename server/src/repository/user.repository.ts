@@ -1,10 +1,9 @@
-import { DataSource, ILike, In, IsNull, Not, Or, Repository } from 'typeorm';
+import { DataSource, ILike, In, Not, Repository } from 'typeorm';
 import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { User } from '../entity/user.entity';
 import { QuerySearchDto } from '../dto/query-search.dto';
 import { CustomException } from '../services/custom-exception';
-import { GroupType } from '../enums/group.enum';
 
 @Injectable()
 export class UserRepository extends Repository<User> {

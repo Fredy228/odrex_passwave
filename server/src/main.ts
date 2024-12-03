@@ -9,10 +9,15 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { join } from 'path';
 
 async function bootstrap() {
+  console.log('process.env.REACT_URL', process.env.REACT_URL);
+  console.log(
+    'process.env.ON_START_CREATE_ADMIN',
+    process.env.ON_START_CREATE_ADMIN,
+  );
   const app = await NestFactory.create<NestExpressApplication>(MainModule, {
     logger: ['error', 'warn', 'log'],
     cors: {
-      origin: [process.env.REACT_URL],
+      origin: ['*'],
       credentials: true,
     },
   });

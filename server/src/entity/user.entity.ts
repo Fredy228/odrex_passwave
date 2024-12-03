@@ -23,7 +23,7 @@ export class User {
   id: number;
 
   @ApiProperty()
-  @Column({ type: 'varchar', length: 100, nullable: false })
+  @Column({ type: 'varchar', length: 250, nullable: false })
   email: string;
 
   @ApiProperty()
@@ -65,6 +65,7 @@ export class User {
   @CreateDateColumn({
     name: 'createAt',
     type: 'timestamp',
+    precision: 0,
     default: () => 'CURRENT_TIMESTAMP',
   })
   createAt: Date;
@@ -72,6 +73,7 @@ export class User {
   @UpdateDateColumn({
     name: 'updateAt',
     type: 'timestamp',
+    precision: 0,
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })

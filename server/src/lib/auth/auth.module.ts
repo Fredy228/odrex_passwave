@@ -7,19 +7,20 @@ import { UserAgentMiddleware } from '../../middlewares/user-agent.middleware';
 import { UserRepository } from '../../repository/user.repository';
 import { UserDevicesRepository } from '../../repository/user-devices.repository';
 import { ProtectAuthMiddleware } from '../../middlewares/protect-auth.middleware';
+import { TryLoginRepository } from '../../repository/try-login.repository';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, UserRepository, UserDevicesRepository],
+  providers: [
+    AuthService,
+    UserRepository,
+    UserDevicesRepository,
+    TryLoginRepository,
+  ],
   exports: [],
 })
 export class AuthModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ProtectAuthMiddleware).forRoutes({
-      path: '/auth/change-pass',
-      method: RequestMethod.PATCH,
-    });
-
     consumer.apply(ProtectRefreshMiddleware).forRoutes(
       {
         path: '/auth/refresh',
@@ -28,6 +29,10 @@ export class AuthModule {
       {
         path: '/auth/logout',
         method: RequestMethod.GET,
+      },
+      {
+        path: '/auth/change-pass',
+        method: RequestMethod.PATCH,
       },
     );
 

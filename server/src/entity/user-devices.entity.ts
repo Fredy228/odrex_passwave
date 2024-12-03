@@ -20,7 +20,7 @@ export class UserDevices {
   @Column({
     name: 'device_model',
     type: 'varchar',
-    length: 100,
+    length: 250,
     nullable: true,
   })
   deviceModel: string;
@@ -29,6 +29,7 @@ export class UserDevices {
   @CreateDateColumn({
     name: 'create_at',
     type: 'timestamp',
+    precision: 0,
     default: () => 'CURRENT_TIMESTAMP',
   })
   createAt: Date;
@@ -37,6 +38,7 @@ export class UserDevices {
   @UpdateDateColumn({
     name: 'update_at',
     type: 'timestamp',
+    precision: 0,
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })

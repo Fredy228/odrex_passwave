@@ -1,8 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { DataSource, ILike, In, IsNull, Not, Repository } from 'typeorm';
+import { DataSource, ILike, Repository } from 'typeorm';
 
 import { Company } from '../entity/company.entity';
-import { Privilege } from '../entity/privilege.entity';
 import { QuerySearchDto } from '../dto/query-search.dto';
 import { CustomException } from '../services/custom-exception';
 

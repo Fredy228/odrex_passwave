@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  Param,
   Patch,
   Post,
   Req,
@@ -42,11 +41,17 @@ export class AuthController {
     @Body(JoiPipe) loginBody: LoginAuthDto,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const ip: string = String(
+      req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || 'unknown',
+    );
     const userAgent = req['useragent'];
-    const foundUser = await this.authService.signInCredentials({
-      ...loginBody,
-      userAgent,
-    });
+    const foundUser = await this.authService.signInCredentials(
+      {
+        ...loginBody,
+        userAgent,
+      },
+      ip,
+    );
     res.cookie('refreshToken', foundUser.refreshToken, {
       httpOnly: true,
       maxAge: Number(process.env.COOKI_EXPIRE),
@@ -104,10 +109,10 @@ export class AuthController {
   @ApiResponse({ status: 204, description: 'Password updated' })
   @HttpCode(204)
   async restorePassword(
-    @Req() req: ReqProtectedType,
+    @Req() req: Request & { user: User; currentDevice: UserDevices },
     @Body() body: PassUpdateDto,
   ) {
-    return this.authService.changePassword(req.user, body);
+    return this.authService.changePassword(req.user, req.currentDevice, body);
   }
 
   // @Patch('/restore-pass/:key')

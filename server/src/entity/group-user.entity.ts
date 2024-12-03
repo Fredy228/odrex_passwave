@@ -9,12 +9,8 @@ export class GroupUser {
   @PrimaryColumn({
     type: 'integer',
   })
-  // @Column({ nullable: false })
   userId: number;
 
-  // @PrimaryColumn({
-  //   type: 'integer',
-  // })
   @ManyToOne(() => User, (user) => user.groups_users, {
     onDelete: 'CASCADE',
   })
@@ -24,12 +20,8 @@ export class GroupUser {
   @PrimaryColumn({
     type: 'integer',
   })
-  // @Column({ nullable: false })
   groupId: number;
 
-  // @PrimaryColumn({
-  //   type: 'integer',
-  // })
   @ManyToOne(() => PrivilegeGroup, (group) => group.groups_users, {
     onDelete: 'CASCADE',
   })
