@@ -6,6 +6,7 @@ import AuthProvider from "./components/route/AuthProvider";
 import PrivateRoute from "./components/route/PrivateRoute";
 import RestrictedRoute from "./components/route/RestrictedRoute";
 import { RoleEnum } from "@/enum/role.enum";
+import { Typography } from "@mui/material";
 
 const AuthScreen = lazy(() => import("./screens/auth/AuthScreen"));
 const HomeScreen = lazy(() => import("./screens/home/HomeScreen"));
@@ -14,6 +15,10 @@ const UserByIdScreen = lazy(() => import("./screens/users/UserByIdScreen"));
 const GroupsScreen = lazy(() => import("./screens/groups/GroupsScreen"));
 const CompanyScreen = lazy(() => import("./screens/company/CompanyScreen"));
 const HallsScreen = lazy(() => import("./screens/halls/HallsScreen"));
+const TryLoginScreen = lazy(() => import("./screens/try-login/TryLoginScreen"));
+const UserDeviceScreen = lazy(
+  () => import("./screens/user-device/UserDeviceScreen"),
+);
 
 function App() {
   return (
@@ -67,10 +72,26 @@ function App() {
           }
         />
         <Route
+          path={"/sessions"}
+          element={
+            <PrivateRoute>
+              <UserDeviceScreen />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path={"/groups"}
           element={
             <PrivateRoute access={[RoleEnum.ADMIN]}>
               <GroupsScreen />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={"/try-login"}
+          element={
+            <PrivateRoute access={[RoleEnum.ADMIN]}>
+              <TryLoginScreen />
             </PrivateRoute>
           }
         />
@@ -82,6 +103,17 @@ function App() {
           <RestrictedRoute>
             <AuthScreen />
           </RestrictedRoute>
+        }
+      />
+
+      <Route
+        path={"*"}
+        element={
+          <>
+            <Typography textAlign={"center"} variant={"h3"}>
+              Not found page
+            </Typography>
+          </>
         }
       />
     </Routes>

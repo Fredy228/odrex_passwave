@@ -1,18 +1,18 @@
 import { Button, Dialog, DialogActions, DialogTitle } from "@mui/material";
-import { type FC, useState } from "react";
+import { useState } from "react";
 import { LoadingButton } from "@mui/lab";
 
 import { outputError } from "@/services/output-error";
 import { toast } from "react-toastify";
 
-type Props = {
+type Props<T> = {
   close: () => void;
   refresh?: () => void;
-  id: number | null;
+  id: T | null;
   text: string;
-  fetchApi: (id: number) => Promise<void>;
+  fetchApi: (id: T) => Promise<void>;
 };
-const ModalConfirm: FC<Props> = ({ close, refresh, id, text, fetchApi }) => {
+const ModalConfirm = <T,>({ close, refresh, id, text, fetchApi }: Props<T>) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleDelete = async () => {

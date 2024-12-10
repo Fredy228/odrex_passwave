@@ -15,6 +15,7 @@ import { StaticModule } from './lib/static/static.module';
 import { PrivilegeGroupModule } from './lib/privilege-group/privilege-group.module';
 import { PrivilegeModule } from './lib/privilege/privilege.module';
 import { TryLoginModule } from './lib/try-login/try-login.module';
+import { UserDeviceModule } from './lib/user-device/user-device.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { TryLoginModule } from './lib/try-login/try-login.module';
     PrivilegeGroupModule,
     PrivilegeModule,
     TryLoginModule,
+    UserDeviceModule,
   ],
   controllers: [],
 })

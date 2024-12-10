@@ -11,3 +11,13 @@ export interface UserInterface {
   accessToken?: string;
   refreshToken?: string;
 }
+
+export interface UserDeviceInterface {
+  id: number;
+  ipAddress: string;
+  deviceModel: string;
+  createAt: Date;
+  updateAt: Date;
+  accessToken: string;
+  refreshToken?: string;
+}

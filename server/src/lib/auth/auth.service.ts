@@ -69,12 +69,13 @@ export class AuthService {
       );
     }
 
-    await this.deleteOldSession(user.devices);
-    await this.tryLoginRepository.deleteWhere({
-      ipAddress: ip,
-    });
-
-    const tokens = await this.addDeviceAuth(deviceModel, user);
+    const [tokens] = await Promise.all([
+      this.addDeviceAuth(deviceModel, user, ip),
+      this.deleteOldSession(user.devices),
+      this.tryLoginRepository.deleteWhere({
+        ipAddress: ip,
+      }),
+    ]);
 
     return { ...user, ...tokens, password: null };
   }
@@ -157,13 +158,18 @@ export class AuthService {
     );
   }
 
-  async addDeviceAuth(deviceModel: string, user: User): Promise<TokenType> {
+  async addDeviceAuth(
+    deviceModel: string,
+    user: User,
+    ip: string,
+  ): Promise<TokenType> {
     const tokens = this.createToken(user);
     const newDevice = this.devicesRepository.create({
       deviceModel: deviceModel ? deviceModel : null,
       user,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
+      ipAddress: ip,
     });
 
     await this.devicesRepository.save(newDevice);

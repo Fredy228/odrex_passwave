@@ -106,6 +106,9 @@ const Header: FC = () => {
             <MenuItem onClick={() => navigate(`/groups`)}>
               <Typography>Groups</Typography>
             </MenuItem>
+            <MenuItem onClick={() => navigate(`/try-login`)}>
+              <Typography>Try login</Typography>
+            </MenuItem>
           </Menu>
 
           {isMoreMobile && (
@@ -114,6 +117,7 @@ const Header: FC = () => {
                 <>
                   <ItemLink to={"/users"}>Users</ItemLink>
                   <ItemLink to={"/groups"}>Groups</ItemLink>
+                  <ItemLink to={"/try-login"}>Try login</ItemLink>
                 </>
               )}
             </ListMenu>
@@ -148,6 +152,9 @@ const Header: FC = () => {
             >
               <MenuItem onClick={() => navigate(`/users/${user?.id}`)}>
                 <Typography>Profile</Typography>
+              </MenuItem>
+              <MenuItem onClick={() => navigate(`/sessions`)}>
+                <Typography>Sessions</Typography>
               </MenuItem>
               <MenuItem onClick={handleLogout}>
                 <Typography>Logout</Typography>

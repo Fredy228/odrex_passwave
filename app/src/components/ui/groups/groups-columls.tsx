@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { GridCellParams, GridColDef } from "@mui/x-data-grid";
-import { BoxCenter } from "@/components/ui/users/users.styled";
 import { IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PeopleIcon from "@mui/icons-material/People";
 
+import { BoxCenter } from "@/components/ui/users/users.styled";
 import { GroupInterface } from "@/interface/group.interface";
 
 const useGroupColumns = () => {

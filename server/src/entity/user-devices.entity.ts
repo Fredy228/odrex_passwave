@@ -26,6 +26,16 @@ export class UserDevices {
   deviceModel: string;
 
   @ApiProperty()
+  @Column({
+    name: 'ip_address',
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+    default: 'unknown',
+  })
+  ipAddress: string;
+
+  @ApiProperty()
   @CreateDateColumn({
     name: 'create_at',
     type: 'timestamp',

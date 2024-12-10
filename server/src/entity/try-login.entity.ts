@@ -13,7 +13,13 @@ export class TryLogin {
   id: number;
 
   @ApiProperty()
-  @Column({ name: 'ip_address', type: 'varchar', length: 100, nullable: false })
+  @Column({
+    name: 'ip_address',
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+    default: 'unknown',
+  })
   ipAddress: string;
 
   @ApiProperty()

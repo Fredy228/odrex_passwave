@@ -5,9 +5,15 @@ import { TryLoginController } from './try-login.controller';
 import { TryLoginCronService } from './try-login.cron.service';
 import { TryLoginRepository } from '../../repository/try-login.repository';
 import { ProtectAuthMiddleware } from '../../middlewares/protect-auth.middleware';
+import { UserRepository } from '../../repository/user.repository';
 
 @Module({
-  providers: [TryLoginService, TryLoginCronService, TryLoginRepository],
+  providers: [
+    TryLoginService,
+    TryLoginCronService,
+    TryLoginRepository,
+    UserRepository,
+  ],
   controllers: [TryLoginController],
 })
 export class TryLoginModule {

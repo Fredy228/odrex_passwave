@@ -3,6 +3,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Param,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { QuerySearchDto } from '../../dto/query-search.dto';
 import { TryLogin } from '../../entity/try-login.entity';
 import { RoleEnum } from '../../enums/role.enum';
 import { TryLoginDto } from './dto/try-login.dto';
+import * as Joi from 'joi';
 
 @ApiTags('Try login')
 @Controller('try-login')
@@ -56,5 +58,39 @@ export class TryLoginController {
     query: TryLoginDto,
   ) {
     return this.tryLoginService.delete(query.ids);
+  }
+
+  @Get('/blocked')
+  @ApiOperation({
+    summary: 'Get all blocked ips',
+    description: 'Return blocked ips',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Blocked ips got',
+    type: [TryLogin],
+  })
+  @HttpCode(200)
+  @Roles(RoleEnum.ADMIN)
+  async getAllBlocked(
+    @Query(new QueryValidationPipe(['filter']), JoiPipe)
+    query: QuerySearchDto,
+  ) {
+    return this.tryLoginService.getBlockedIp(query.filter);
+  }
+
+  @Delete('/blocked/:ip')
+  @ApiOperation({ summary: 'Unblock ip', description: 'Return void' })
+  @ApiResponse({
+    status: 204,
+    description: 'Unblocked ip',
+  })
+  @HttpCode(204)
+  @Roles(RoleEnum.ADMIN)
+  async unblock(
+    @Param('ip', new JoiPipe(Joi.string().ip().required()))
+    ip: string,
+  ) {
+    return this.tryLoginService.unblock(ip);
   }
 }
