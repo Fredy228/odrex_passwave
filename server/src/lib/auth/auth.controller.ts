@@ -3,12 +3,14 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
   Patch,
   Post,
   Req,
   Res,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import * as Joi from 'joi';
 import { JoiPipe } from 'nestjs-joi';
 import { ApiOperation, ApiResponse, ApiTags, OmitType } from '@nestjs/swagger';
 import * as process from 'process';
@@ -19,7 +21,8 @@ import { UserDevices } from '../../entity/user-devices.entity';
 import { LoginAuthDto } from './dto/login.dto';
 import { TokenDto } from './dto/tokent.dto';
 import { PassUpdateDto } from './dto/pass-update.dto';
-import { ReqProtectedType } from '../../types/protect.type';
+import { PassRestoreDto } from './dto/pass-restore.dto';
+import { EmailDto } from './dto/email.dto';
 
 @ApiTags('Authorization')
 @Controller('auth')
@@ -108,24 +111,42 @@ export class AuthController {
   })
   @ApiResponse({ status: 204, description: 'Password updated' })
   @HttpCode(204)
-  async restorePassword(
+  async changePassword(
     @Req() req: Request & { user: User; currentDevice: UserDevices },
-    @Body() body: PassUpdateDto,
+    @Body(JoiPipe) body: PassUpdateDto,
   ) {
     return this.authService.changePassword(req.user, req.currentDevice, body);
   }
 
-  // @Patch('/restore-pass/:key')
-  // @ApiOperation({
-  //   summary: 'Restore user password',
-  //   description: 'Update user password',
-  // })
-  // @ApiResponse({ status: 204, description: 'Password updated' })
-  // @HttpCode(204)
-  // async restorePassword(
-  //   @Param('key') key: string,
-  //   @Body() { password }: RestorePassDto,
-  // ) {
-  //   return this.authService.restorePassword(key, password);
-  // }
+  @Post('/forgot-pass')
+  @ApiOperation({
+    summary: 'Restore code',
+    description: 'Send to email restore code',
+  })
+  @ApiResponse({ status: 204, description: 'Code sent' })
+  @HttpCode(204)
+  async sendForgotPassword(
+    @Req()
+    req: Request,
+    @Body(JoiPipe) body: EmailDto,
+  ) {
+    const ip: string = String(
+      req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || 'unknown',
+    );
+    return this.authService.sendForgotPass(body, ip);
+  }
+
+  @Patch('/restore-pass/:key')
+  @ApiOperation({
+    summary: 'Restore user password',
+    description: 'Update user password',
+  })
+  @ApiResponse({ status: 204, description: 'Password updated' })
+  @HttpCode(204)
+  async restorePassword(
+    @Param('key', new JoiPipe(Joi.string().min(1).required())) key: string,
+    @Body(JoiPipe) body: PassRestoreDto,
+  ) {
+    return this.authService.restorePassByEmail(key, body);
+  }
 }

@@ -45,3 +45,32 @@ export const userRegisterSchema = userLoginSchema.concat(
     })
     .options({ stripUnknown: false }),
 );
+
+export const emailSchema = Joi.object()
+  .keys({
+    email: Joi.string()
+      .email({ tlds: { allow: false } })
+      .trim()
+      .required()
+      .label("email")
+      .messages({
+        "string.email": "The email is incorrect",
+        "string.empty": "The email is empty.",
+      }),
+  })
+  .options({ stripUnknown: false });
+
+export const passSchema = Joi.object()
+  .keys({
+    password: Joi.string()
+      .regex(/(?=.*\d)(?=.*[A-Z])[A-Za-z\d]{8,30}/)
+      .trim()
+      .required()
+      .label("password")
+      .messages({
+        "string.empty": "The password is empty.",
+        "string.pattern.base":
+          "Password may have a minimum of 8 characters and a maximum of 30 characters, including at least one capital letter and one number",
+      }),
+  })
+  .options({ stripUnknown: false });

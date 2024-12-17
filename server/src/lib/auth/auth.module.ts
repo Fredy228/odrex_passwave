@@ -6,8 +6,9 @@ import { ProtectRefreshMiddleware } from '../../middlewares/protect-refresh.midd
 import { UserAgentMiddleware } from '../../middlewares/user-agent.middleware';
 import { UserRepository } from '../../repository/user.repository';
 import { UserDevicesRepository } from '../../repository/user-devices.repository';
-import { ProtectAuthMiddleware } from '../../middlewares/protect-auth.middleware';
 import { TryLoginRepository } from '../../repository/try-login.repository';
+import { MailModule } from '../../services/mail/mail.module';
+import { CodeAccessRepository } from '../../repository/code-access.repository';
 
 @Module({
   controllers: [AuthController],
@@ -16,8 +17,10 @@ import { TryLoginRepository } from '../../repository/try-login.repository';
     UserRepository,
     UserDevicesRepository,
     TryLoginRepository,
+    CodeAccessRepository,
   ],
   exports: [],
+  imports: [MailModule],
 })
 export class AuthModule {
   configure(consumer: MiddlewareConsumer) {

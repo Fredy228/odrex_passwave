@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Details } from 'express-useragent';
 import * as process from 'process';
+import { v4 as uuidv4 } from 'uuid';
 
 import { CustomException } from '../../services/custom-exception';
 import { checkPassword, hashPassword } from '../../services/hashPassword';
@@ -13,14 +14,20 @@ import { UserDevices } from '../../entity/user-devices.entity';
 import { LoginAuthDto } from './dto/login.dto';
 import { PassUpdateDto } from './dto/pass-update.dto';
 import { TryLoginRepository } from '../../repository/try-login.repository';
+import { MailService } from '../../services/mail/mail.service';
+import { CodeAccessRepository } from '../../repository/code-access.repository';
+import { EmailDto } from './dto/email.dto';
+import { PassRestoreDto } from './dto/pass-restore.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersRepository: UserRepository,
-    private devicesRepository: UserDevicesRepository,
-    private tryLoginRepository: TryLoginRepository,
-    private jwtService: JwtService,
+    private readonly usersRepository: UserRepository,
+    private readonly devicesRepository: UserDevicesRepository,
+    private readonly tryLoginRepository: TryLoginRepository,
+    private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
+    private readonly codeAccessRepository: CodeAccessRepository,
   ) {}
 
   async signInCredentials(
@@ -141,6 +148,49 @@ export class AuthService {
     await this.devicesRepository.delete(
       session.filter((i) => i.id !== currentDevice.id).map((i) => i.id),
     );
+  }
+
+  async sendForgotPass({ email }: EmailDto, ip: string) {
+    await this.codeAccessRepository.checkBlock({ ipAddress: ip, email });
+
+    console.log('email', email);
+
+    const code = uuidv4();
+
+    await this.codeAccessRepository.save(
+      this.codeAccessRepository.create({
+        ipAddress: ip,
+        email,
+        code,
+      }),
+    );
+
+    await this.mailService.sendForgotPass({
+      email,
+      key: code,
+    });
+    return;
+  }
+
+  async restorePassByEmail(code: string, { newPass }: PassRestoreDto) {
+    const codeAccess = await this.codeAccessRepository.checkCode({ code });
+    const user = await this.usersRepository.findOne({
+      where: {
+        email: codeAccess.email,
+      },
+      relations: {
+        devices: true,
+      },
+    });
+    if (!user)
+      throw new CustomException(HttpStatus.NOT_FOUND, `User not found`);
+
+    await this.usersRepository.update(user.id, {
+      password: await hashPassword(newPass),
+    });
+    await this.codeAccessRepository.delete(codeAccess.id);
+    if (user?.devices?.length > 0)
+      await this.devicesRepository.delete(user.devices.map((i) => i.id));
   }
 
   async deleteOldSession(devices: UserDevices[]) {

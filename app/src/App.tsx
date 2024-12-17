@@ -6,9 +6,15 @@ import AuthProvider from "./components/route/AuthProvider";
 import PrivateRoute from "./components/route/PrivateRoute";
 import RestrictedRoute from "./components/route/RestrictedRoute";
 import { RoleEnum } from "@/enum/role.enum";
-import { Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 
 const AuthScreen = lazy(() => import("./screens/auth/AuthScreen"));
+const ForgotPassScreen = lazy(
+  () => import("./screens/restore-pass/ForgotPassScreen"),
+);
+const RestorePassScreen = lazy(
+  () => import("./screens/restore-pass/RestorePassScreen"),
+);
 const HomeScreen = lazy(() => import("./screens/home/HomeScreen"));
 const UsersScreen = lazy(() => import("./screens/users/UsersScreen"));
 const UserByIdScreen = lazy(() => import("./screens/users/UserByIdScreen"));
@@ -107,12 +113,31 @@ function App() {
       />
 
       <Route
+        path={"/auth/forgot"}
+        element={
+          <RestrictedRoute>
+            <ForgotPassScreen />
+          </RestrictedRoute>
+        }
+      />
+      <Route
+        path={"/auth/forgot/:key"}
+        element={
+          <RestrictedRoute>
+            <RestorePassScreen />
+          </RestrictedRoute>
+        }
+      />
+
+      <Route
         path={"*"}
         element={
           <>
-            <Typography textAlign={"center"} variant={"h3"}>
-              Not found page
-            </Typography>
+            <Stack justifyContent="center" alignItems="center" height={"100vh"}>
+              <Typography textAlign={"center"} variant={"h4"}>
+                Not found page
+              </Typography>
+            </Stack>
           </>
         }
       />

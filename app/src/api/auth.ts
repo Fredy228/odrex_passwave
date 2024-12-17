@@ -23,3 +23,18 @@ export const changeUserPassword = async (
 ) => {
   await $api.patch("/auth/change-pass", { currentPass, newPass });
 };
+
+export const sendForgotPassword = async (email: string) => {
+  await $api.post("/auth/forgot-pass", {
+    email,
+  });
+};
+
+export const restorePassword = async (
+  code: string,
+  newPass: string,
+): Promise<void> => {
+  await $api.patch(`/auth/restore-pass/${code}`, {
+    newPass,
+  });
+};

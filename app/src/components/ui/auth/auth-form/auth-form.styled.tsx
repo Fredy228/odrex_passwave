@@ -22,6 +22,6 @@ export const FormCustom = styled.form`
   flex-direction: column;
   gap: 15px;
   width: 100%;
-  padding: 20px;
+  padding: 20px 0;
   align-items: center;
 `;

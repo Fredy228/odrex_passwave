@@ -16,6 +16,10 @@ import { PrivilegeGroupModule } from './lib/privilege-group/privilege-group.modu
 import { PrivilegeModule } from './lib/privilege/privilege.module';
 import { TryLoginModule } from './lib/try-login/try-login.module';
 import { UserDeviceModule } from './lib/user-device/user-device.module';
+import { MailModule } from './services/mail/mail.module';
+
+console.log('JWT_SECRET', process.env.JWT_SECRET);
+console.log('JWT_EXPIRE_REFRESH_TOKEN', process.env.JWT_EXPIRE_REFRESH_TOKEN);
 
 @Module({
   imports: [
@@ -39,6 +43,7 @@ import { UserDeviceModule } from './lib/user-device/user-device.module';
     PrivilegeModule,
     TryLoginModule,
     UserDeviceModule,
+    MailModule,
   ],
   controllers: [],
 })

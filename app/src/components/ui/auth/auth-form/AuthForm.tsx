@@ -9,6 +9,7 @@ import {
   OutlinedInput,
   InputAdornment,
   IconButton,
+  Link,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -119,6 +120,8 @@ const AuthForm: FC = () => {
             label="Password"
           />
         </FormControl>
+
+        <Link href={"/auth/forgot"}>Forgot password? Go to</Link>
 
         <LoadingButton
           loading={isLoading}
