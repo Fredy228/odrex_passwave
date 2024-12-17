@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  app:
+    command: bash -c "REACT_APP_SERVER_URL=${REACT_APP_SERVER_URL} && npm i && npm run build"
+
+  server:
+    command: bash -c "npm i && npm run build && npm run start:prod"
+
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    command: >
+      bash -c "envsubst '$${PORT_SERVER}, $${DOMAIN_SSL}' < /etc/nginx/templates/nginx-https.conf > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"

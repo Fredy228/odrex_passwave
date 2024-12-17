@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    volumes:
+      - ./nginx/ssl:/etc/letsencrypt
+      - ./nginx/www:/usr/share/nginx/html
+    entrypoint: ""
+    command: >
+      bash -c "certonly --webroot --webroot-path=/usr/share/nginx/html --email ${EMAIL_SSL} --agree-tos --no-eff-email -d ${DOMAIN_SSL} -d www.${DOMAIN_SSL}"

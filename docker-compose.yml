@@ -59,6 +59,9 @@ services:
       - .env
     volumes:
       - ./nginx:/etc/nginx/templates
+      - ./nginx/ssl:/etc/letsencrypt
+      - ./nginx/www:/usr/share/nginx/html
+      - ./app/build:/build
     depends_on:
       - app
     links:
